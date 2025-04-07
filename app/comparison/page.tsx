@@ -5,8 +5,8 @@ import ComparisonChart from "@/components/comparison-chart"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
 export const metadata: Metadata = {
-  title: "Country Comparison | Energy Statistics",
-  description: "Compare energy statistics between Philippines and ASEAN countries",
+  title: "Country Comparison | DATA101 - S12 Group 6",
+  description: "Compare energy statistics between Philippines and ASEAN countries by DATA101 - S12 Group 6",
 }
 
 export default function ComparisonPage() {
@@ -29,7 +29,7 @@ export default function ComparisonPage() {
         <ComparisonChart />
       </main>
       <footer className="border-t py-4 text-center text-sm text-gray-500">
-        Energy Statistics Visualization © {new Date().getFullYear()}
+        DATA101 - S12 Group 6 (Members: Apale, Masinda, Rayel, Sanchez) © {new Date().getFullYear()}
       </footer>
     </div>
   )

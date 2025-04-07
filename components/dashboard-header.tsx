@@ -24,7 +24,7 @@ export default function DashboardHeader() {
           <div className="flex items-center">
             <Link href="/" className="flex items-center">
               <BarChart3 className="h-6 w-6 mr-2" />
-              <span className="font-bold text-lg">Energy Stats</span>
+              <span className="font-bold text-lg">DATA101 - S12 Group 6</span>
             </Link>
           </div>
 

@@ -6,6 +6,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import dynamic from "next/dynamic"
 import { renewableData } from "@/data/renewable-data"
 
+// Add the theme detector import
+import { useThemeDetector } from "@/hooks/use-theme-detector"
+
 // Dynamically import Plotly to avoid SSR issues
 const Plot = dynamic(() => import("react-plotly.js"), { ssr: false })
 
@@ -13,6 +16,9 @@ export default function RenewableEnergyChart() {
   const [chartType, setChartType] = useState("trend")
   const [plotData, setPlotData] = useState<any>(null)
   const [isClient, setIsClient] = useState(false)
+
+  // Add the theme detector hook inside the component
+  const isDarkTheme = useThemeDetector()
 
   useEffect(() => {
     setIsClient(true)
@@ -101,10 +107,13 @@ export default function RenewableEnergyChart() {
     }
   }, [chartType])
 
+  // Update the trendLayout to include theme-specific colors
   const trendLayout = {
     title: "",
     autosize: true,
     height: 400,
+    paper_bgcolor: isDarkTheme ? "rgb(17, 17, 17)" : "white",
+    plot_bgcolor: isDarkTheme ? "rgb(17, 17, 17)" : "white",
     margin: {
       l: 50,
       r: 30,
@@ -114,17 +123,27 @@ export default function RenewableEnergyChart() {
     },
     xaxis: {
       title: "Year",
+      color: isDarkTheme ? "white" : "black",
+      gridcolor: isDarkTheme ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)",
     },
     yaxis: {
       title: "Renewable Energy Share (%)",
       range: [0, 40],
+      color: isDarkTheme ? "white" : "black",
+      gridcolor: isDarkTheme ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)",
+    },
+    font: {
+      color: isDarkTheme ? "white" : "black",
     },
   }
 
+  // Update the comparisonLayout to include theme-specific colors
   const comparisonLayout = {
     title: "",
     autosize: true,
     height: 400,
+    paper_bgcolor: isDarkTheme ? "rgb(17, 17, 17)" : "white",
+    plot_bgcolor: isDarkTheme ? "rgb(17, 17, 17)" : "white",
     margin: {
       l: 50,
       r: 30,
@@ -135,23 +154,36 @@ export default function RenewableEnergyChart() {
     xaxis: {
       title: "",
       tickangle: -45,
+      color: isDarkTheme ? "white" : "black",
+      gridcolor: isDarkTheme ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)",
     },
     yaxis: {
       title: "Renewable Energy Share (%)",
       range: [0, 40],
+      color: isDarkTheme ? "white" : "black",
+      gridcolor: isDarkTheme ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)",
+    },
+    font: {
+      color: isDarkTheme ? "white" : "black",
     },
   }
 
+  // Update the breakdownLayout to include theme-specific colors
   const breakdownLayout = {
     title: "",
     autosize: true,
     height: 400,
+    paper_bgcolor: isDarkTheme ? "rgb(17, 17, 17)" : "white",
+    plot_bgcolor: isDarkTheme ? "rgb(17, 17, 17)" : "white",
     margin: {
       l: 10,
       r: 10,
       b: 10,
       t: 10,
       pad: 4,
+    },
+    font: {
+      color: isDarkTheme ? "white" : "black",
     },
   }
 

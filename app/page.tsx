@@ -7,8 +7,9 @@ import ProductionChart from "@/components/production-chart"
 import RenewableEnergyChart from "@/components/renewable-energy-chart"
 
 export const metadata: Metadata = {
-  title: "Energy Statistics Dashboard | Philippines and ASEAN",
-  description: "Comprehensive visualization of energy statistics across Philippines and ASEAN countries",
+  title: "DATA101 - S12 Group 6 | Energy Statistics Dashboard",
+  description:
+    "Comprehensive visualization of energy statistics across Philippines and ASEAN countries by DATA101 - S12 Group 6",
 }
 
 export default function Home() {
@@ -16,7 +17,7 @@ export default function Home() {
     <div className="flex flex-col min-h-screen">
       <DashboardHeader />
       <main className="flex-1 container mx-auto px-4 py-6">
-        <h1 className="text-3xl font-bold mb-6">Energy Statistics Dashboard</h1>
+        <h1 className="text-3xl font-bold mb-6">DATA101 - S12 Group 6 Energy Dashboard</h1>
 
         <StatisticsOverview />
 
@@ -32,7 +33,7 @@ export default function Home() {
         </div>
       </main>
       <footer className="border-t py-4 text-center text-sm text-gray-500">
-        Energy Statistics Visualization © {new Date().getFullYear()}
+        DATA101 - S12 Group 6 (Members: Apale, Masinda, Rayel, Sanchez) © {new Date().getFullYear()}
       </footer>
     </div>
   )

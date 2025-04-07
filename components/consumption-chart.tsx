@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import dynamic from "next/dynamic"
 import { consumptionData } from "@/data/consumption-data"
+import { useThemeDetector } from "@/hooks/use-theme-detector"
 
 // Dynamically import Plotly to avoid SSR issues
 const Plot = dynamic(() => import("react-plotly.js"), { ssr: false })
@@ -13,6 +14,8 @@ export default function ConsumptionChart() {
   const [country, setCountry] = useState("Philippines")
   const [plotData, setPlotData] = useState<any>(null)
   const [isClient, setIsClient] = useState(false)
+
+  const isDarkTheme = useThemeDetector()
 
   useEffect(() => {
     setIsClient(true)
@@ -50,12 +53,14 @@ export default function ConsumptionChart() {
 
       setPlotData(data)
     }
-  }, [country])
+  }, [country, isDarkTheme])
 
   const layout = {
     title: "",
     autosize: true,
     height: 350,
+    paper_bgcolor: isDarkTheme ? "rgb(17, 17, 17)" : "white",
+    plot_bgcolor: isDarkTheme ? "rgb(17, 17, 17)" : "white",
     margin: {
       l: 50,
       r: 30,
@@ -65,13 +70,23 @@ export default function ConsumptionChart() {
     },
     xaxis: {
       title: "Year",
+      color: isDarkTheme ? "white" : "black",
+      gridcolor: isDarkTheme ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)",
     },
     yaxis: {
       title: "Energy Consumption (TWh)",
+      color: isDarkTheme ? "white" : "black",
+      gridcolor: isDarkTheme ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)",
     },
     legend: {
       orientation: "h",
       y: -0.2,
+      font: {
+        color: isDarkTheme ? "white" : "black",
+      },
+    },
+    font: {
+      color: isDarkTheme ? "white" : "black",
     },
   }
 

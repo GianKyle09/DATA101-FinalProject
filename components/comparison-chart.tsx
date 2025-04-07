@@ -6,6 +6,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import dynamic from "next/dynamic"
 import { comparisonData } from "@/data/comparison-data"
 
+// Add the theme detector import
+import { useThemeDetector } from "@/hooks/use-theme-detector"
+
 // Dynamically import Plotly to avoid SSR issues
 const Plot = dynamic(() => import("react-plotly.js"), { ssr: false })
 
@@ -13,6 +16,9 @@ export default function ComparisonChart() {
   const [chartType, setChartType] = useState("bar")
   const [plotData, setPlotData] = useState<any>(null)
   const [isClient, setIsClient] = useState(false)
+
+  // Add the theme detector hook inside the component
+  const isDarkTheme = useThemeDetector()
 
   // For demo purposes, we'll use consumption data for selected countries
   const selectedCountries = ["Philippines", "Indonesia", "Malaysia", "Thailand", "Vietnam"]
@@ -85,10 +91,13 @@ export default function ComparisonChart() {
     }
   }, [chartType])
 
+  // Update the barLayout to include theme-specific colors
   const barLayout = {
     title: "",
     autosize: true,
     height: 500,
+    paper_bgcolor: isDarkTheme ? "rgb(17, 17, 17)" : "white",
+    plot_bgcolor: isDarkTheme ? "rgb(17, 17, 17)" : "white",
     margin: {
       l: 50,
       r: 30,
@@ -99,16 +108,26 @@ export default function ComparisonChart() {
     xaxis: {
       title: "",
       tickangle: -45,
+      color: isDarkTheme ? "white" : "black",
+      gridcolor: isDarkTheme ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)",
     },
     yaxis: {
       title: getMetricTitle(metric),
+      color: isDarkTheme ? "white" : "black",
+      gridcolor: isDarkTheme ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)",
+    },
+    font: {
+      color: isDarkTheme ? "white" : "black",
     },
   }
 
+  // Update the radarLayout to include theme-specific colors
   const radarLayout = {
     title: "",
     autosize: true,
     height: 500,
+    paper_bgcolor: isDarkTheme ? "rgb(17, 17, 17)" : "white",
+    plot_bgcolor: isDarkTheme ? "rgb(17, 17, 17)" : "white",
     margin: {
       l: 50,
       r: 50,
@@ -120,14 +139,27 @@ export default function ComparisonChart() {
       radialaxis: {
         visible: true,
         range: [0, getMaxValue(metric) * 1.2],
+        color: isDarkTheme ? "white" : "black",
+        gridcolor: isDarkTheme ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)",
       },
+      angularaxis: {
+        color: isDarkTheme ? "white" : "black",
+        gridcolor: isDarkTheme ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)",
+      },
+      bgcolor: isDarkTheme ? "rgb(17, 17, 17)" : "white",
+    },
+    font: {
+      color: isDarkTheme ? "white" : "black",
     },
   }
 
+  // Update the scatterLayout to include theme-specific colors
   const scatterLayout = {
     title: "",
     autosize: true,
     height: 500,
+    paper_bgcolor: isDarkTheme ? "rgb(17, 17, 17)" : "white",
+    plot_bgcolor: isDarkTheme ? "rgb(17, 17, 17)" : "white",
     margin: {
       l: 50,
       r: 30,
@@ -137,9 +169,16 @@ export default function ComparisonChart() {
     },
     xaxis: {
       title: "GDP per Capita (USD)",
+      color: isDarkTheme ? "white" : "black",
+      gridcolor: isDarkTheme ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)",
     },
     yaxis: {
       title: getMetricTitle(metric),
+      color: isDarkTheme ? "white" : "black",
+      gridcolor: isDarkTheme ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)",
+    },
+    font: {
+      color: isDarkTheme ? "white" : "black",
     },
   }
 

@@ -5,6 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import dynamic from "next/dynamic"
 import { aseanData } from "@/data/asean-data"
+// Add the theme detector import
+import { useThemeDetector } from "@/hooks/use-theme-detector"
 
 // Dynamically import Plotly to avoid SSR issues
 const Plot = dynamic(() => import("react-plotly.js"), { ssr: false })
@@ -13,6 +15,8 @@ export default function EnergyMap() {
   const [mapMetric, setMapMetric] = useState("consumption")
   const [plotData, setPlotData] = useState<any>(null)
   const [isClient, setIsClient] = useState(false)
+  // Add the theme detector hook inside the component
+  const isDarkTheme = useThemeDetector()
 
   useEffect(() => {
     setIsClient(true)
@@ -29,7 +33,7 @@ export default function EnergyMap() {
       reversescale: false,
       marker: {
         line: {
-          color: "rgba(0,0,0,0.5)",
+          color: isDarkTheme ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)",
           width: 0.5,
         },
       },
@@ -40,12 +44,19 @@ export default function EnergyMap() {
             : mapMetric === "production"
               ? "Energy Production (TWh)"
               : "Renewable Share (%)",
+        titlefont: {
+          color: isDarkTheme ? "white" : "black",
+        },
+        tickfont: {
+          color: isDarkTheme ? "white" : "black",
+        },
       },
     }
 
     setPlotData([data])
-  }, [mapMetric])
+  }, [mapMetric, isDarkTheme])
 
+  // Update the layout to include theme-specific colors
   const layout = {
     geo: {
       scope: "asia",
@@ -64,7 +75,13 @@ export default function EnergyMap() {
       lataxis: {
         range: [-10, 30],
       },
+      bgcolor: isDarkTheme ? "rgb(17, 17, 17)" : "white",
+      lakecolor: isDarkTheme ? "rgb(17, 17, 17)" : "white",
+      landcolor: isDarkTheme ? "rgb(40, 40, 40)" : "rgb(240, 240, 240)",
+      oceancolor: isDarkTheme ? "rgb(17, 17, 17)" : "white",
     },
+    paper_bgcolor: isDarkTheme ? "rgb(17, 17, 17)" : "white",
+    plot_bgcolor: isDarkTheme ? "rgb(17, 17, 17)" : "white",
     margin: {
       l: 0,
       r: 0,
@@ -73,6 +90,9 @@ export default function EnergyMap() {
     },
     height: 500,
     autosize: true,
+    font: {
+      color: isDarkTheme ? "white" : "black",
+    },
   }
 
   const config = {

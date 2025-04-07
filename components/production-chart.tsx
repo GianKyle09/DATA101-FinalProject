@@ -5,6 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import dynamic from "next/dynamic"
 import { productionData } from "@/data/production-data"
+// Add the theme detector import
+import { useThemeDetector } from "@/hooks/use-theme-detector"
 
 // Dynamically import Plotly to avoid SSR issues
 const Plot = dynamic(() => import("react-plotly.js"), { ssr: false })
@@ -13,6 +15,9 @@ export default function ProductionChart() {
   const [country, setCountry] = useState("Philippines")
   const [plotData, setPlotData] = useState<any>(null)
   const [isClient, setIsClient] = useState(false)
+
+  // Add the theme detector hook inside the component
+  const isDarkTheme = useThemeDetector()
 
   useEffect(() => {
     setIsClient(true)
@@ -55,10 +60,13 @@ export default function ProductionChart() {
     }
   }, [country])
 
+  // Update the layout to include theme-specific colors
   const layout = {
     title: "",
     autosize: true,
     height: 350,
+    paper_bgcolor: isDarkTheme ? "rgb(17, 17, 17)" : "white",
+    plot_bgcolor: isDarkTheme ? "rgb(17, 17, 17)" : "white",
     margin: {
       l: 30,
       r: 30,
@@ -69,6 +77,12 @@ export default function ProductionChart() {
     legend: {
       orientation: "h",
       y: -0.2,
+      font: {
+        color: isDarkTheme ? "white" : "black",
+      },
+    },
+    font: {
+      color: isDarkTheme ? "white" : "black",
     },
   }
 

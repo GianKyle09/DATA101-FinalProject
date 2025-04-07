@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import dynamic from "next/dynamic"
 import { countryProfiles } from "@/data/country-profiles"
+import { useThemeDetector } from "@/hooks/use-theme-detector"
 
 // Dynamically import Plotly to avoid SSR issues
 const Plot = dynamic(() => import("react-plotly.js"), { ssr: false })
@@ -16,6 +17,8 @@ export default function CountryEnergyProfile() {
 
   // For demo purposes, we'll use Philippines data
   const countryData = countryProfiles.philippines
+
+  const isDarkTheme = useThemeDetector()
 
   useEffect(() => {
     setIsClient(true)
@@ -89,6 +92,8 @@ export default function CountryEnergyProfile() {
     title: "",
     autosize: true,
     height: 400,
+    paper_bgcolor: isDarkTheme ? "rgb(17, 17, 17)" : "white",
+    plot_bgcolor: isDarkTheme ? "rgb(17, 17, 17)" : "white",
     margin: {
       l: 50,
       r: 30,
@@ -98,6 +103,14 @@ export default function CountryEnergyProfile() {
     },
     yaxis: {
       title: "Energy (TWh)",
+      color: isDarkTheme ? "white" : "black",
+      gridcolor: isDarkTheme ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)",
+    },
+    xaxis: {
+      color: isDarkTheme ? "white" : "black",
+    },
+    font: {
+      color: isDarkTheme ? "white" : "black",
     },
   }
 
@@ -105,6 +118,8 @@ export default function CountryEnergyProfile() {
     title: "",
     autosize: true,
     height: 400,
+    paper_bgcolor: isDarkTheme ? "rgb(17, 17, 17)" : "white",
+    plot_bgcolor: isDarkTheme ? "rgb(17, 17, 17)" : "white",
     margin: {
       l: 50,
       r: 30,
@@ -114,9 +129,16 @@ export default function CountryEnergyProfile() {
     },
     xaxis: {
       title: "Year",
+      color: isDarkTheme ? "white" : "black",
+      gridcolor: isDarkTheme ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)",
     },
     yaxis: {
       title: "Energy (TWh)",
+      color: isDarkTheme ? "white" : "black",
+      gridcolor: isDarkTheme ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)",
+    },
+    font: {
+      color: isDarkTheme ? "white" : "black",
     },
   }
 
@@ -124,6 +146,8 @@ export default function CountryEnergyProfile() {
     title: "",
     autosize: true,
     height: 400,
+    paper_bgcolor: isDarkTheme ? "rgb(17, 17, 17)" : "white",
+    plot_bgcolor: isDarkTheme ? "rgb(17, 17, 17)" : "white",
     margin: {
       l: 50,
       r: 30,
@@ -133,9 +157,13 @@ export default function CountryEnergyProfile() {
     },
     xaxis: {
       title: "Year",
+      color: isDarkTheme ? "white" : "black",
+      gridcolor: isDarkTheme ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)",
     },
     yaxis: {
       title: "Energy (TWh)",
+      color: isDarkTheme ? "white" : "black",
+      gridcolor: isDarkTheme ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)",
     },
     shapes: [
       {
@@ -146,7 +174,7 @@ export default function CountryEnergyProfile() {
         y1: 1,
         yref: "paper",
         line: {
-          color: "grey",
+          color: isDarkTheme ? "rgba(255, 255, 255, 0.5)" : "grey",
           width: 1,
           dash: "dot",
         },
@@ -160,9 +188,15 @@ export default function CountryEnergyProfile() {
         text: "Forecast →",
         showarrow: false,
         xanchor: "left",
-        bgcolor: "rgba(255, 255, 255, 0.8)",
+        font: {
+          color: isDarkTheme ? "white" : "black",
+        },
+        bgcolor: isDarkTheme ? "rgba(17, 17, 17, 0.8)" : "rgba(255, 255, 255, 0.8)",
       },
     ],
+    font: {
+      color: isDarkTheme ? "white" : "black",
+    },
   }
 
   const config = {
