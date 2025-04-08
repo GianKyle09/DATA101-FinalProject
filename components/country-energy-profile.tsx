@@ -22,71 +22,64 @@ export default function CountryEnergyProfile({ country = "philippines" }: { coun
 
   useEffect(() => {
     setIsClient(true)
-
+    
+    const selectedCountryData = countryProfiles[country as keyof typeof countryProfiles] || countryProfiles.Philippines
+    
+    if (!selectedCountryData) return
+    
     if (profileTab === "overview") {
-      // Overview data - energy balance
-      const data = [
-        {
-          x: ["Production", "Imports", "Exports", "Consumption"],
-          y: [countryData.production, countryData.imports, -countryData.exports, countryData.consumption],
-          type: "bar",
-          marker: {
-            color: ["#66c2a5", "#3288bd", "#d53e4f", "#5e4fa2"],
-          },
+      // For the overview, we'll show GDP over time
+      const data = [{
+        x: selectedCountryData.year.slice(-10), // Last 10 years
+        y: selectedCountryData.gdp.slice(-10).map(val => val/1e9), // Convert to billions
+        type: "bar",
+        marker: {
+          color: "#66c2a5"
         },
-      ]
-
+        name: "GDP (Billion USD)"
+      }]
+      
       setPlotData(data)
     } else if (profileTab === "historical") {
-      // Historical data
+      // For historical data, show GDP and population trends
       const data = [
         {
-          x: countryData.years,
-          y: countryData.historicalConsumption,
+          x: selectedCountryData.year,
+          y: selectedCountryData.gdp.map(val => val/1e9),
           type: "scatter",
           mode: "lines+markers",
-          name: "Consumption",
+          name: "GDP (Billion USD)",
+          yaxis: 'y'
         },
         {
-          x: countryData.years,
-          y: countryData.historicalProduction,
+          x: selectedCountryData.year,
+          y: selectedCountryData.population,
           type: "scatter",
           mode: "lines+markers",
-          name: "Production",
-        },
+          name: "Population",
+          yaxis: 'y2'
+        }
       ]
-
+      
       setPlotData(data)
     } else if (profileTab === "forecast") {
-      // Forecast data
-      const data = [
-        {
-          x: countryData.forecastYears,
-          y: countryData.forecastConsumption,
-          type: "scatter",
-          mode: "lines",
-          name: "Consumption Forecast",
-          line: {
-            dash: "solid",
-            width: 4,
-          },
-        },
-        {
-          x: countryData.forecastYears,
-          y: countryData.forecastProduction,
-          type: "scatter",
-          mode: "lines",
-          name: "Production Forecast",
-          line: {
-            dash: "solid",
-            width: 4,
-          },
-        },
-      ]
-
+      // We don't have forecast data in the new structure, 
+      // so let's show per capita GDP trend instead
+      const data = [{
+        x: selectedCountryData.year,
+        y: selectedCountryData.gdp.map((gdp, i) => 
+          (gdp / selectedCountryData.population[i])),
+        type: "scatter",
+        mode: "lines",
+        name: "GDP per Capita (USD)",
+        line: {
+          width: 4
+        }
+      }]
+      
       setPlotData(data)
     }
-  }, [profileTab, countryData])
+  }, [profileTab, country])
 
   const overviewLayout = {
     title: "",
@@ -122,7 +115,7 @@ export default function CountryEnergyProfile({ country = "philippines" }: { coun
     plot_bgcolor: isDarkTheme ? "rgb(17, 17, 17)" : "white",
     margin: {
       l: 50,
-      r: 30,
+      r: 50, // Increased for second y-axis
       b: 50,
       t: 10,
       pad: 4,
@@ -133,13 +126,25 @@ export default function CountryEnergyProfile({ country = "philippines" }: { coun
       gridcolor: isDarkTheme ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)",
     },
     yaxis: {
-      title: "Energy (TWh)",
+      title: "GDP (Billion USD)",
       color: isDarkTheme ? "white" : "black",
       gridcolor: isDarkTheme ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)",
+    },
+    yaxis2: {
+      title: "Population",
+      titlefont: { color: isDarkTheme ? "#ff7f0e" : "#ff7f0e" },
+      tickfont: { color: isDarkTheme ? "#ff7f0e" : "#ff7f0e" },
+      overlaying: 'y',
+      side: 'right'
     },
     font: {
       color: isDarkTheme ? "white" : "black",
     },
+    legend: {
+      x: 0.01,
+      y: 0.99,
+      bgcolor: isDarkTheme ? "rgba(17, 17, 17, 0.7)" : "rgba(255, 255, 255, 0.7)"
+    }
   }
 
   const forecastLayout = {
@@ -161,42 +166,13 @@ export default function CountryEnergyProfile({ country = "philippines" }: { coun
       gridcolor: isDarkTheme ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)",
     },
     yaxis: {
-      title: "Energy (TWh)",
+      title: "GDP per Capita (USD)",
       color: isDarkTheme ? "white" : "black",
       gridcolor: isDarkTheme ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)",
     },
-    shapes: [
-      {
-        type: "line",
-        x0: 2023,
-        y0: 0,
-        x1: 2023,
-        y1: 1,
-        yref: "paper",
-        line: {
-          color: isDarkTheme ? "rgba(255, 255, 255, 0.5)" : "grey",
-          width: 1,
-          dash: "dot",
-        },
-      },
-    ],
-    annotations: [
-      {
-        x: 2023,
-        y: 1,
-        yref: "paper",
-        text: "Forecast →",
-        showarrow: false,
-        xanchor: "left",
-        font: {
-          color: isDarkTheme ? "white" : "black",
-        },
-        bgcolor: isDarkTheme ? "rgba(17, 17, 17, 0.8)" : "rgba(255, 255, 255, 0.8)",
-      },
-    ],
     font: {
       color: isDarkTheme ? "white" : "black",
-    },
+    }
   }
 
   const config = {
@@ -209,24 +185,31 @@ export default function CountryEnergyProfile({ country = "philippines" }: { coun
       <CardContent className="pt-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
           <div className="bg-muted rounded-lg p-4">
-            <h3 className="font-medium mb-2">Population</h3>
-            <p className="text-2xl font-bold">{countryData.population.toLocaleString()}</p>
+            <h3 className="font-medium mb-2">Population (Latest)</h3>
+            <p className="text-2xl font-bold">
+              {countryData.population[countryData.population.length-1].toLocaleString()}
+            </p>
           </div>
           <div className="bg-muted rounded-lg p-4">
-            <h3 className="font-medium mb-2">GDP (USD)</h3>
-            <p className="text-2xl font-bold">${(countryData.gdp / 1e9).toFixed(1)} billion</p>
+            <h3 className="font-medium mb-2">GDP (Latest)</h3>
+            <p className="text-2xl font-bold">
+              ${(countryData.gdp[countryData.gdp.length-1] / 1e9).toFixed(1)} billion
+            </p>
           </div>
           <div className="bg-muted rounded-lg p-4">
-            <h3 className="font-medium mb-2">Energy Intensity</h3>
-            <p className="text-2xl font-bold">{countryData.energyIntensity.toFixed(2)} kWh/$</p>
+            <h3 className="font-medium mb-2">GDP per Capita (Latest)</h3>
+            <p className="text-2xl font-bold">
+              ${Math.round(countryData.gdp[countryData.gdp.length-1] / 
+                countryData.population[countryData.population.length-1])}
+            </p>
           </div>
         </div>
 
         <Tabs value={profileTab} onValueChange={setProfileTab} className="w-full">
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="overview">Energy Balance</TabsTrigger>
-            <TabsTrigger value="historical">Historical Data</TabsTrigger>
-            <TabsTrigger value="forecast">Forecast</TabsTrigger>
+            <TabsTrigger value="overview">GDP Overview</TabsTrigger>
+            <TabsTrigger value="historical">Historical Trends</TabsTrigger>
+            <TabsTrigger value="forecast">GDP per Capita</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="mt-4">
