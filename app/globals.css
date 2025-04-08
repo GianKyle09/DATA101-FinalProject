@@ -111,3 +111,18 @@ body {
 .js-plotly-plot {
   width: 100% !important;
 }
+
+/* Fix for choropleth map background */
+.js-plotly-plot .geo {
+  background-color: transparent !important;
+}
+
+.js-plotly-plot .bg {
+  fill: transparent !important;
+}
+
+/* Ensure the colorbar doesn't affect the map background */
+.js-plotly-plot .colorbar {
+  border: none !important;
+  background-color: transparent !important;
+}

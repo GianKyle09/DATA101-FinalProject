@@ -124,7 +124,14 @@ export default function PhilippinesMap() {
           tickfont: {
             color: isDarkTheme ? "white" : "black",
           },
+          // Position the colorbar to the right side with some padding
+          x: 1,
+          xpad: 20,
+          len: 0.8, // Make it 80% of the height
+          y: 0.5, // Center it vertically
+          yanchor: "middle",
         },
+        showscale: true,
       },
     ]
 
@@ -152,16 +159,23 @@ export default function PhilippinesMap() {
         lataxis: {
           range: [4, 21],
         },
-        bgcolor: isDarkTheme ? "rgb(17, 17, 17)" : "white",
+        // Fix background colors to ensure they're not affected by the legend
+        bgcolor: "rgba(0,0,0,0)", // Transparent background
         lakecolor: isDarkTheme ? "rgb(17, 17, 17)" : "white",
         landcolor: isDarkTheme ? "rgb(40, 40, 40)" : "rgb(240, 240, 240)",
         oceancolor: isDarkTheme ? "rgb(17, 17, 17)" : "white",
+        showland: true,
+        showlakes: true,
+        showocean: true,
+        framecolor: isDarkTheme ? "white" : "black",
+        coastlinecolor: isDarkTheme ? "white" : "black",
       },
+      // Set the overall background colors
       paper_bgcolor: isDarkTheme ? "rgb(17, 17, 17)" : "white",
-      plot_bgcolor: isDarkTheme ? "rgb(17, 17, 17)" : "white",
+      plot_bgcolor: "rgba(0,0,0,0)", // Transparent plot background
       margin: {
         l: 0,
-        r: 0,
+        r: 80, // Add right margin for the colorbar
         t: 0,
         b: 0,
       },
@@ -170,6 +184,9 @@ export default function PhilippinesMap() {
       font: {
         color: isDarkTheme ? "white" : "black",
       },
+      // Ensure proper layering
+      separators: ".,",
+      hidesources: true,
     }
   }, [isDarkTheme])
 
@@ -201,7 +218,7 @@ export default function PhilippinesMap() {
       </CardHeader>
       <CardContent>
         {isClient && !isLoading && geoJson && plotData ? (
-          <div className="relative">
+          <div className="relative bg-card rounded-lg overflow-hidden">
             <Plot data={plotData} layout={layout} config={config} style={{ width: "100%", height: "100%" }} />
           </div>
         ) : isClient && !isLoading && !geoJson ? (
