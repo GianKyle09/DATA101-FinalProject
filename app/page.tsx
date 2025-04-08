@@ -9,7 +9,7 @@ import RenewableEnergyChart from "@/components/renewable-energy-chart"
 import PhilippinesMap from "@/components/philippines-map-fix"
 
 export const metadata: Metadata = {
-  title: "DATA101 - S12 Group 6 | Energy Statistics Dashboard",
+  title: "DATA101 - S12 Group 6 | ASEAN PowerPulse",
   description:
     "Comprehensive visualization of energy statistics across Philippines and ASEAN countries by DATA101 - S12 Group 6",
 }
@@ -38,7 +38,7 @@ export default function Home() {
         </div>
       </main>
       <footer className="border-t py-4 text-center text-sm text-gray-500">
-        DATA101 - S12 Group 6 (Members: Apale, Masinda, Rayel, Sanchez) © {new Date().getFullYear()}
+      ASEAN PowerPulse by DATA101 - S12 Group 6 (Members: Apale, Masinda, Rayel, Sanchez) © {new Date().getFullYear()}
       </footer>
     </div>
   )

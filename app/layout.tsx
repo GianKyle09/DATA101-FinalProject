@@ -13,7 +13,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <title>DATA101 - S12 Group 6 | Energy Statistics</title>
+        <title>DATA101 - S12 Group 6 | ASEAN PowerPulse</title>
       </head>
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
