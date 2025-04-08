@@ -7,7 +7,11 @@ import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Separator } from "@/components/ui/separator"
 
-export default function ComparisonSelector() {
+interface ComparisonSelectorProps {
+  onUpdate?: (countries: string[], metric: string) => void
+}
+
+export default function ComparisonSelector({ onUpdate }: ComparisonSelectorProps) {
   const [selectedCountries, setSelectedCountries] = useState<string[]>(["Philippines", "Indonesia", "Malaysia"])
   const [metric, setMetric] = useState("consumption")
 
@@ -26,6 +30,12 @@ export default function ComparisonSelector() {
 
   const handleCountryChange = (country: string) => {
     setSelectedCountries((prev) => (prev.includes(country) ? prev.filter((c) => c !== country) : [...prev, country]))
+  }
+
+  const handleUpdate = () => {
+    if (onUpdate) {
+      onUpdate(selectedCountries, metric)
+    }
   }
 
   return (
@@ -74,9 +84,8 @@ export default function ComparisonSelector() {
 
       <div className="md:col-span-2">
         <Separator className="my-4" />
-        <Button>Update Comparison</Button>
+        <Button onClick={handleUpdate}>Update Comparison</Button>
       </div>
     </div>
   )
 }
-

@@ -12,7 +12,15 @@ import { useThemeDetector } from "@/hooks/use-theme-detector"
 // Dynamically import Plotly to avoid SSR issues
 const Plot = dynamic(() => import("react-plotly.js"), { ssr: false })
 
-export default function ComparisonChart() {
+interface ComparisonChartProps {
+  countries?: string[]
+  metric?: string
+}
+
+export default function ComparisonChart({
+  countries = ["Philippines", "Indonesia", "Malaysia", "Thailand", "Vietnam"],
+  metric = "consumption",
+}: ComparisonChartProps) {
   const [chartType, setChartType] = useState("bar")
   const [plotData, setPlotData] = useState<any>(null)
   const [isClient, setIsClient] = useState(false)
@@ -20,16 +28,12 @@ export default function ComparisonChart() {
   // Add the theme detector hook inside the component
   const isDarkTheme = useThemeDetector()
 
-  // For demo purposes, we'll use consumption data for selected countries
-  const selectedCountries = ["Philippines", "Indonesia", "Malaysia", "Thailand", "Vietnam"]
-  const metric = "consumption"
-
   useEffect(() => {
     setIsClient(true)
 
     // Filter data for selected countries and metric
     const filteredData = comparisonData
-      .filter((item) => selectedCountries.includes(item.country))
+      .filter((item) => countries.includes(item.country))
       .map((item) => ({
         country: item.country,
         value: item[metric as keyof typeof item] as number,
@@ -58,8 +62,8 @@ export default function ComparisonChart() {
       const data = [
         {
           type: "scatterpolar",
-          r: [...filteredData.map((item) => item.value), filteredData[0].value],
-          theta: [...filteredData.map((item) => item.country), filteredData[0].country],
+          r: [...filteredData.map((item) => item.value), filteredData[0]?.value || 0],
+          theta: [...filteredData.map((item) => item.country), filteredData[0]?.country || ""],
           fill: "toself",
           name: metric,
         },
@@ -89,7 +93,7 @@ export default function ComparisonChart() {
 
       setPlotData(data)
     }
-  }, [chartType])
+  }, [chartType, countries, metric])
 
   // Update the barLayout to include theme-specific colors
   const barLayout = {
@@ -266,4 +270,3 @@ export default function ComparisonChart() {
     </Card>
   )
 }
-

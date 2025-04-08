@@ -20,9 +20,21 @@ const countries = [
   { value: "myanmar", label: "Myanmar" },
 ]
 
-export default function CountrySelector() {
+interface CountrySelectorProps {
+  onCountryChange?: (country: string) => void
+}
+
+export default function CountrySelector({ onCountryChange }: CountrySelectorProps) {
   const [open, setOpen] = useState(false)
   const [value, setValue] = useState("philippines")
+
+  const handleSelect = (currentValue: string) => {
+    setValue(currentValue === value ? "" : currentValue)
+    setOpen(false)
+    if (onCountryChange && currentValue !== value) {
+      onCountryChange(currentValue)
+    }
+  }
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -39,14 +51,7 @@ export default function CountrySelector() {
             <CommandEmpty>No country found.</CommandEmpty>
             <CommandGroup>
               {countries.map((country) => (
-                <CommandItem
-                  key={country.value}
-                  value={country.value}
-                  onSelect={(currentValue) => {
-                    setValue(currentValue === value ? "" : currentValue)
-                    setOpen(false)
-                  }}
-                >
+                <CommandItem key={country.value} value={country.value} onSelect={handleSelect}>
                   <Check className={cn("mr-2 h-4 w-4", value === country.value ? "opacity-100" : "opacity-0")} />
                   {country.label}
                 </CommandItem>
@@ -58,4 +63,3 @@ export default function CountrySelector() {
     </Popover>
   )
 }
-

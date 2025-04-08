@@ -10,13 +10,13 @@ import { useThemeDetector } from "@/hooks/use-theme-detector"
 // Dynamically import Plotly to avoid SSR issues
 const Plot = dynamic(() => import("react-plotly.js"), { ssr: false })
 
-export default function CountryEnergyProfile() {
+export default function CountryEnergyProfile({ country = "philippines" }: { country?: string }) {
   const [profileTab, setProfileTab] = useState("overview")
   const [plotData, setPlotData] = useState<any>(null)
   const [isClient, setIsClient] = useState(false)
 
-  // For demo purposes, we'll use Philippines data
-  const countryData = countryProfiles.philippines
+  // Get country data based on the selected country
+  const countryData = countryProfiles[country as keyof typeof countryProfiles] || countryProfiles.philippines
 
   const isDarkTheme = useThemeDetector()
 
@@ -86,7 +86,7 @@ export default function CountryEnergyProfile() {
 
       setPlotData(data)
     }
-  }, [profileTab])
+  }, [profileTab, countryData])
 
   const overviewLayout = {
     title: "",
@@ -268,4 +268,3 @@ export default function CountryEnergyProfile() {
     </Card>
   )
 }
-

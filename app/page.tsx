@@ -5,6 +5,7 @@ import EnergyMap from "@/components/energy-map"
 import ConsumptionChart from "@/components/consumption-chart"
 import ProductionChart from "@/components/production-chart"
 import RenewableEnergyChart from "@/components/renewable-energy-chart"
+import PhilippinesMap from "@/components/philippines-map"
 
 export const metadata: Metadata = {
   title: "DATA101 - S12 Group 6 | Energy Statistics Dashboard",
@@ -23,6 +24,9 @@ export default function Home() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
           <div className="col-span-1 lg:col-span-2">
+            <PhilippinesMap />
+          </div>
+          <div className="col-span-1 lg:col-span-2">
             <EnergyMap />
           </div>
           <ConsumptionChart />
@@ -38,4 +42,3 @@ export default function Home() {
     </div>
   )
 }
-

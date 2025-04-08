@@ -5,8 +5,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import dynamic from "next/dynamic"
 import { renewableData } from "@/data/renewable-data"
-
-// Add the theme detector import
 import { useThemeDetector } from "@/hooks/use-theme-detector"
 
 // Dynamically import Plotly to avoid SSR issues
@@ -16,8 +14,6 @@ export default function RenewableEnergyChart() {
   const [chartType, setChartType] = useState("trend")
   const [plotData, setPlotData] = useState<any>(null)
   const [isClient, setIsClient] = useState(false)
-
-  // Add the theme detector hook inside the component
   const isDarkTheme = useThemeDetector()
 
   useEffect(() => {
@@ -53,59 +49,37 @@ export default function RenewableEnergyChart() {
 
       setPlotData(data)
     } else if (chartType === "breakdown") {
-      // Prepare breakdown data
+      // Create a simple pie chart instead of sunburst for the breakdown
+      // This is more reliable and should display properly
       const data = [
         {
-          type: "sunburst",
-          labels: [
-            "Renewable",
-            "Hydro",
-            "Solar",
-            "Wind",
-            "Bioenergy",
-            "Geothermal",
-            "Non-Renewable",
-            "Coal",
-            "Oil",
-            "Natural Gas",
-            "Nuclear",
-          ],
-          parents: [
-            "",
-            "Renewable",
-            "Renewable",
-            "Renewable",
-            "Renewable",
-            "Renewable",
-            "",
-            "Non-Renewable",
-            "Non-Renewable",
-            "Non-Renewable",
-            "Non-Renewable",
-          ],
-          values: [0, 15, 8, 5, 7, 3, 0, 30, 20, 10, 2],
-          branchvalues: "total",
+          values: [30, 15, 8, 5, 7, 3, 20, 10, 2],
+          labels: ["Coal", "Hydro", "Solar", "Wind", "Bioenergy", "Geothermal", "Oil", "Natural Gas", "Nuclear"],
+          type: "pie",
+          hole: 0.4,
           marker: {
             colors: [
-              "#3366cc",
-              "#66c2a5",
-              "#fee08b",
-              "#e6f598",
-              "#abdda4",
-              "#e78ac3",
-              "#8c510a",
-              "#4d4d4d",
-              "#5e4fa2",
-              "#3288bd",
-              "#d53e4f",
+              "#4d4d4d", // Coal
+              "#66c2a5", // Hydro
+              "#fee08b", // Solar
+              "#e6f598", // Wind
+              "#abdda4", // Bioenergy
+              "#e78ac3", // Geothermal
+              "#5e4fa2", // Oil
+              "#3288bd", // Natural Gas
+              "#d53e4f", // Nuclear
             ],
           },
+          textinfo: "label+percent",
+          hoverinfo: "label+value+percent",
+          textposition: "outside",
+          automargin: true,
         },
       ]
 
       setPlotData(data)
     }
-  }, [chartType])
+  }, [chartType, isDarkTheme])
 
   // Update the trendLayout to include theme-specific colors
   const trendLayout = {
@@ -128,12 +102,17 @@ export default function RenewableEnergyChart() {
     },
     yaxis: {
       title: "Renewable Energy Share (%)",
-      range: [0, 40],
+      range: [0, 70], // Increased to accommodate Laos' high percentage
       color: isDarkTheme ? "white" : "black",
       gridcolor: isDarkTheme ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)",
     },
     font: {
       color: isDarkTheme ? "white" : "black",
+    },
+    legend: {
+      font: {
+        color: isDarkTheme ? "white" : "black",
+      },
     },
   }
 
@@ -159,7 +138,7 @@ export default function RenewableEnergyChart() {
     },
     yaxis: {
       title: "Renewable Energy Share (%)",
-      range: [0, 40],
+      range: [0, 70], // Increased to accommodate Laos' high percentage
       color: isDarkTheme ? "white" : "black",
       gridcolor: isDarkTheme ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)",
     },
@@ -176,15 +155,33 @@ export default function RenewableEnergyChart() {
     paper_bgcolor: isDarkTheme ? "rgb(17, 17, 17)" : "white",
     plot_bgcolor: isDarkTheme ? "rgb(17, 17, 17)" : "white",
     margin: {
-      l: 10,
-      r: 10,
-      b: 10,
-      t: 10,
-      pad: 4,
+      l: 0,
+      r: 0,
+      b: 0,
+      t: 0,
     },
     font: {
       color: isDarkTheme ? "white" : "black",
     },
+    legend: {
+      font: {
+        color: isDarkTheme ? "white" : "black",
+      },
+    },
+    annotations: [
+      {
+        font: {
+          size: 16,
+          color: isDarkTheme ? "white" : "black",
+        },
+        showarrow: false,
+        text: "Energy Sources Breakdown",
+        x: 0.5,
+        y: 1.1,
+        xref: "paper",
+        yref: "paper",
+      },
+    ],
   }
 
   const config = {
@@ -250,4 +247,3 @@ export default function RenewableEnergyChart() {
     </Card>
   )
 }
-

@@ -1,15 +1,18 @@
-import type { Metadata } from "next"
+"use client"
+
+import { useState } from "react"
 import DashboardHeader from "@/components/dashboard-header"
 import CountrySelector from "@/components/country-selector"
 import CountryEnergyProfile from "@/components/country-energy-profile"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
-export const metadata: Metadata = {
-  title: "Country Energy Profiles | DATA101 - S12 Group 6",
-  description: "Detailed energy profiles for Philippines and ASEAN countries by DATA101 - S12 Group 6",
-}
-
 export default function CountriesPage() {
+  const [selectedCountry, setSelectedCountry] = useState("philippines")
+
+  const handleCountryChange = (country: string) => {
+    setSelectedCountry(country.toLowerCase())
+  }
+
   return (
     <div className="flex flex-col min-h-screen">
       <DashboardHeader />
@@ -22,11 +25,11 @@ export default function CountriesPage() {
             <CardDescription>View detailed energy statistics for a specific country</CardDescription>
           </CardHeader>
           <CardContent>
-            <CountrySelector />
+            <CountrySelector onCountryChange={handleCountryChange} />
           </CardContent>
         </Card>
 
-        <CountryEnergyProfile />
+        <CountryEnergyProfile country={selectedCountry} />
       </main>
       <footer className="border-t py-4 text-center text-sm text-gray-500">
         DATA101 - S12 Group 6 (Members: Apale, Masinda, Rayel, Sanchez) © {new Date().getFullYear()}
@@ -34,4 +37,3 @@ export default function CountriesPage() {
     </div>
   )
 }
-

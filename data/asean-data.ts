@@ -80,4 +80,3 @@ export const aseanData = [
     lon: 95.956,
   },
 ]
-
