@@ -99,7 +99,7 @@ export default function PhilippinesMap() {
       {
         type: "choropleth",
         geojson: geoJson,
-        featureidkey: "properties.REGION_NAME",
+        featureidkey: "properties.adm1_en",
         locations: normalizedData.map((region) => region.REGION),
         z: normalizedData.map((region) => Number.parseFloat(region["ELECTRIFICATION RATE"]) * 100),
         text: normalizedData.map(
@@ -139,12 +139,12 @@ export default function PhilippinesMap() {
     // Check if each data point has a matching feature
     const unmatchedRegions = normalizedData.filter(region => 
       !geoJson.features.some(feature => 
-        feature.properties.REGION_NAME === region.REGION)
+        feature.properties.adm1_en === region.REGION)
     );
     if (unmatchedRegions.length > 0) {
       console.warn("Unmatched regions:", unmatchedRegions);
       console.warn("Available regions in GeoJSON:", 
-        geoJson.features.map(f => f.properties.REGION_NAME));
+        geoJson.features.map(f => f.properties.adm1_en));
     }
 
     setPlotData(data)
