@@ -23,15 +23,15 @@ export default function Home() {
         <StatisticsOverview />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-          <div className="col-span-1 lg:col-span-2">
+          <div className="col-span-1 lg:col-span-2 mb-6">
             <PhilippinesMap />
           </div>
-          <div className="col-span-1 lg:col-span-2">
+          <div className="col-span-1 lg:col-span-2 mb-6">
             <EnergyMap />
           </div>
           <ConsumptionChart />
           <ProductionChart />
-          <div className="col-span-1 lg:col-span-2">
+          <div className="col-span-1 lg:col-span-2 mt-6">
             <RenewableEnergyChart />
           </div>
         </div>

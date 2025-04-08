@@ -52,17 +52,27 @@ export default function PhilippinesMap() {
   useEffect(() => {
     if (!geoJson || !isClient || !filteredData.length) return
 
+    // Log the first feature to help debug the GeoJSON structure
+    if (geoJson.features && geoJson.features.length > 0) {
+      console.log("First GeoJSON feature:", geoJson.features[0])
+    }
+
     // Prepare data for the choropleth map
     const data = [
       {
         type: "choropleth",
         geojson: geoJson,
-        featureidkey: "properties.id",
+        // Try different featureidkey options based on your GeoJSON structure
+        featureidkey: "properties.adm1_psgc", // This should match the property in your GeoJSON
         locations: filteredData.map((region) => region.adm1_psgc),
         z: filteredData.map((region) => Number.parseFloat(region["ELECTRIFICATION RATE"]) * 100),
-        text: filteredData.map((region) => region.REGION),
+        text: filteredData.map(
+          (region) =>
+            `${region.REGION}<br>Electrification Rate: ${(Number.parseFloat(region["ELECTRIFICATION RATE"]) * 100).toFixed(1)}%`,
+        ),
+        hoverinfo: "text",
         colorscale: "Viridis",
-        zmin: 0,
+        zmin: 40, // Set minimum to make color differences more visible
         zmax: 100,
         marker: {
           line: {
@@ -134,26 +144,30 @@ export default function PhilippinesMap() {
   }
 
   return (
-    <Card className="w-full">
+    <Card className="w-full relative">
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
           <CardTitle>Philippines Electrification Rate</CardTitle>
           <CardDescription>Regional electrification rates across the Philippines</CardDescription>
         </div>
-        <Select value={selectedYear} onValueChange={setSelectedYear}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Select year" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="2000">2000</SelectItem>
-            <SelectItem value="2010">2010</SelectItem>
-            <SelectItem value="2020">2020</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="z-50 relative">
+          <Select value={selectedYear} onValueChange={setSelectedYear}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Select year" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="2000">2000</SelectItem>
+              <SelectItem value="2010">2010</SelectItem>
+              <SelectItem value="2020">2020</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </CardHeader>
       <CardContent>
         {isClient && !isLoading && geoJson && plotData ? (
-          <Plot data={plotData} layout={layout} config={config} style={{ width: "100%", height: "100%" }} />
+          <div className="relative">
+            <Plot data={plotData} layout={layout} config={config} style={{ width: "100%", height: "100%" }} />
+          </div>
         ) : isClient && !isLoading && !geoJson ? (
           <div className="flex flex-col space-y-4">
             <div className="bg-muted p-6 rounded-lg text-center">
