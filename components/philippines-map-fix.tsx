@@ -99,8 +99,8 @@ export default function PhilippinesMap() {
       {
         type: "choropleth",
         geojson: geoJson,
-        featureidkey: "properties.adm1_en",
-        locations: normalizedData.map((region) => region.REGION),
+        featureidkey: "properties.adm1_psgc",
+        locations: normalizedData.map((region) => region.adm1_psgc),
         z: normalizedData.map((region) => Number.parseFloat(region["ELECTRIFICATION RATE"]) * 100),
         text: normalizedData.map(
           (region) =>
@@ -112,10 +112,10 @@ export default function PhilippinesMap() {
         zmax: 100,
         marker: {
           line: {
-            color: isDarkTheme ? "rgba(255,255,255,0.7)" : "rgba(0,0,0,0.7)",
-            width: 1.5, // Make lines thicker
+            color: isDarkTheme ? "rgba(255,255,255,0.8)" : "rgba(0,0,0,0.8)",
+            width: 1.5,
           },
-          opacity: 0.85, // Slightly less transparent
+          opacity: 0.85,
         },
         colorbar: {
           title: "Electrification Rate (%)",
@@ -139,12 +139,12 @@ export default function PhilippinesMap() {
     // Check if each data point has a matching feature
     const unmatchedRegions = normalizedData.filter(region => 
       !geoJson.features.some(feature => 
-        feature.properties.adm1_en === region.REGION)
+        String(feature.properties.adm1_psgc) === String(region.adm1_psgc))
     );
     if (unmatchedRegions.length > 0) {
       console.warn("Unmatched regions:", unmatchedRegions);
-      console.warn("Available regions in GeoJSON:", 
-        geoJson.features.map(f => f.properties.adm1_en));
+      console.warn("Available PSGCs in GeoJSON:", 
+        geoJson.features.map(f => f.properties.adm1_psgc));
     }
 
     setPlotData(data)
@@ -200,6 +200,11 @@ export default function PhilippinesMap() {
       // Ensure proper layering
       separators: ".,",
       hidesources: true,
+      format: {
+        colorbar: {
+          outlinewidth: 0
+        }
+      },
       format: {
         colorbar: {
           outlinewidth: 0
