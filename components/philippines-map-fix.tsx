@@ -113,9 +113,9 @@ export default function PhilippinesMap() {
         marker: {
           line: {
             color: isDarkTheme ? "rgba(255,255,255,0.7)" : "rgba(0,0,0,0.7)",
-            width: 1,
+            width: 1.5, // Make lines thicker
           },
-          opacity: 0.8,
+          opacity: 0.85, // Slightly less transparent
         },
         colorbar: {
           title: "Electrification Rate (%)",
@@ -179,6 +179,7 @@ export default function PhilippinesMap() {
         showland: true,
         showlakes: true,
         showocean: true,
+        showcountries: false, // Don't show country borders that might overlap
         framecolor: isDarkTheme ? "white" : "black",
         coastlinecolor: isDarkTheme ? "white" : "black",
       },
@@ -199,6 +200,11 @@ export default function PhilippinesMap() {
       // Ensure proper layering
       separators: ".,",
       hidesources: true,
+      format: {
+        colorbar: {
+          outlinewidth: 0
+        }
+      },
     }
   }, [isDarkTheme])
 
