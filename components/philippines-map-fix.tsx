@@ -99,8 +99,8 @@ export default function PhilippinesMap() {
       {
         type: "choropleth",
         geojson: geoJson,
-        featureidkey: "properties._normalizedId",
-        locations: normalizedData.map((region) => region._normalizedId),
+        featureidkey: "properties.REGION_NAME",
+        locations: normalizedData.map((region) => region.REGION),
         z: normalizedData.map((region) => Number.parseFloat(region["ELECTRIFICATION RATE"]) * 100),
         text: normalizedData.map(
           (region) =>
@@ -112,9 +112,10 @@ export default function PhilippinesMap() {
         zmax: 100,
         marker: {
           line: {
-            color: isDarkTheme ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)",
-            width: 0.5,
+            color: isDarkTheme ? "rgba(255,255,255,0.7)" : "rgba(0,0,0,0.7)",
+            width: 1,
           },
+          opacity: 0.8,
         },
         colorbar: {
           title: "Electrification Rate (%)",
@@ -134,6 +135,17 @@ export default function PhilippinesMap() {
         showscale: true,
       },
     ]
+
+    // Check if each data point has a matching feature
+    const unmatchedRegions = normalizedData.filter(region => 
+      !geoJson.features.some(feature => 
+        feature.properties.REGION_NAME === region.REGION)
+    );
+    if (unmatchedRegions.length > 0) {
+      console.warn("Unmatched regions:", unmatchedRegions);
+      console.warn("Available regions in GeoJSON:", 
+        geoJson.features.map(f => f.properties.REGION_NAME));
+    }
 
     setPlotData(data)
   }, [geoJson, filteredData, isDarkTheme, isClient])
