@@ -20,14 +20,14 @@ const normalizeId = (id: any): string => {
 const mapRegionPsgcToGeoJson = (psgc) => {
   // Create a mapping for the regions that don't match
   const psgcMapping = {
-    "410000000": 400000000, // CALABARZON
-    "420000000": 400000000, // MIMAROPA (might use same as CALABARZON in GeoJSON)
-    "170000000": 170000000, // NCR
-    "140000000": 140000000, // CAR
-    "190000000": 190000000  // BARMM
+    "130000000": 1300000000, // NCR (National Capital Region)
+    "140000000": 1400000000, // CAR (Cordillera Administrative Region)
+    "150000000": 1900000000, // BARMM (Bangsamoro Autonomous Region)
+    "410000000": 400000000,  // CALABARZON
+    "420000000": 400000000   // MIMAROPA
   };
   
-  // Return mapped value if it exists, otherwise return the original
+  // Return mapped value if it exists, otherwise return the original as a number
   return psgcMapping[psgc] || Number(psgc);
 };
 
@@ -127,10 +127,10 @@ export default function PhilippinesMap() {
         zmax: 100,
         marker: {
           line: {
-            color: isDarkTheme ? "rgba(255,255,255,1)" : "rgba(0,0,0,1)", // Fully opaque lines
-            width: 2.5, // Even thicker lines
+            color: isDarkTheme ? "rgba(255,255,255,1)" : "rgba(0,0,0,1)",
+            width: 3, // Increase line width even more
           },
-          opacity: 0.9,
+          opacity: 0.85,
         },
         colorbar: {
           title: "Electrification Rate (%)",
@@ -162,7 +162,31 @@ export default function PhilippinesMap() {
         geoJson.features.map(f => f.properties.adm1_psgc));
     }
 
-    setPlotData(data)
+    // If we still have unmatched regions, try matching by name as a fallback
+    if (unmatchedRegions.length > 0) {
+      console.log("Attempting to match by region name as fallback");
+      
+      // Create a new plot data array that handles both PSGC and name matching
+      const fallbackData = [
+        {
+          ...data[0], // Copy all properties from the original data object
+          featureidkey: "properties.adm1_en", // Try matching by name
+          locations: normalizedData.map(region => {
+            // Try to find a match by PSGC first
+            const psgcMatch = geoJson.features.some(feature => 
+              Number(feature.properties.adm1_psgc) === mapRegionPsgcToGeoJson(region.adm1_psgc)
+            );
+            
+            // If PSGC matches, use it, otherwise use region name
+            return psgcMatch ? mapRegionPsgcToGeoJson(region.adm1_psgc) : region.REGION;
+          }),
+        }
+      ];
+      
+      setPlotData(fallbackData);
+    } else {
+      setPlotData(data);
+    }
   }, [geoJson, filteredData, isDarkTheme, isClient])
 
   // Use useMemo for layout to prevent unnecessary recalculations
