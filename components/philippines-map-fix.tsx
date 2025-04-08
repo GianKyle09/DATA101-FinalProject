@@ -100,7 +100,7 @@ export default function PhilippinesMap() {
         type: "choropleth",
         geojson: geoJson,
         featureidkey: "properties.adm1_psgc",
-        locations: normalizedData.map((region) => Number(region.adm1_psgc)), // Convert to number
+        locations: normalizedData.map((region) => Number(region.adm1_psgc)),
         z: normalizedData.map((region) => Number.parseFloat(region["ELECTRIFICATION RATE"]) * 100),
         text: normalizedData.map(
           (region) =>
@@ -113,9 +113,9 @@ export default function PhilippinesMap() {
         marker: {
           line: {
             color: isDarkTheme ? "rgba(255,255,255,0.9)" : "rgba(0,0,0,0.9)",
-            width: 2, // Thicker lines
+            width: 2,  // Thicker lines for visibility
           },
-          opacity: 0.9, // Less transparency
+          opacity: 0.9,
         },
         colorbar: {
           title: "Electrification Rate (%)",
@@ -144,7 +144,7 @@ export default function PhilippinesMap() {
     if (unmatchedRegions.length > 0) {
       console.warn("Unmatched regions:", unmatchedRegions);
       console.warn("Available PSGCs in GeoJSON:", 
-        geoJson.features.map(f => Number(f.properties.adm1_psgc)));
+        geoJson.features.map(f => f.properties.adm1_psgc));
     }
 
     setPlotData(data)
