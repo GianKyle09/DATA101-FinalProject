@@ -16,6 +16,21 @@ const normalizeId = (id: any): string => {
   return String(id).trim()
 }
 
+// Map region PSGCs to match GeoJSON features
+const mapRegionPsgcToGeoJson = (psgc) => {
+  // Create a mapping for the regions that don't match
+  const psgcMapping = {
+    "410000000": 400000000, // CALABARZON
+    "420000000": 400000000, // MIMAROPA (might use same as CALABARZON in GeoJSON)
+    "170000000": 170000000, // NCR
+    "140000000": 140000000, // CAR
+    "190000000": 190000000  // BARMM
+  };
+  
+  // Return mapped value if it exists, otherwise return the original
+  return psgcMapping[psgc] || Number(psgc);
+};
+
 export default function PhilippinesMap() {
   const [selectedYear, setSelectedYear] = useState("2020")
   const [plotData, setPlotData] = useState<any>(null)
@@ -100,7 +115,7 @@ export default function PhilippinesMap() {
         type: "choropleth",
         geojson: geoJson,
         featureidkey: "properties.adm1_psgc",
-        locations: normalizedData.map((region) => Number(region.adm1_psgc)),
+        locations: normalizedData.map((region) => mapRegionPsgcToGeoJson(region.adm1_psgc)),
         z: normalizedData.map((region) => Number.parseFloat(region["ELECTRIFICATION RATE"]) * 100),
         text: normalizedData.map(
           (region) =>
@@ -112,8 +127,8 @@ export default function PhilippinesMap() {
         zmax: 100,
         marker: {
           line: {
-            color: isDarkTheme ? "rgba(255,255,255,0.9)" : "rgba(0,0,0,0.9)",
-            width: 2,  // Thicker lines for visibility
+            color: isDarkTheme ? "rgba(255,255,255,1)" : "rgba(0,0,0,1)", // Fully opaque lines
+            width: 2.5, // Even thicker lines
           },
           opacity: 0.9,
         },
@@ -139,7 +154,7 @@ export default function PhilippinesMap() {
     // Check if each data point has a matching feature
     const unmatchedRegions = normalizedData.filter(region => 
       !geoJson.features.some(feature => 
-        Number(feature.properties.adm1_psgc) === Number(region.adm1_psgc))
+        Number(feature.properties.adm1_psgc) === mapRegionPsgcToGeoJson(region.adm1_psgc))
     );
     if (unmatchedRegions.length > 0) {
       console.warn("Unmatched regions:", unmatchedRegions);
