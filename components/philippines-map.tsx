@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import dynamic from "next/dynamic"
@@ -18,9 +18,12 @@ export default function PhilippinesMap() {
   const [isLoading, setIsLoading] = useState(true)
   const isDarkTheme = useThemeDetector()
 
-  // Filter data for selected year
-  const filteredData = regionData.filter((item) => item.YEAR === selectedYear)
+  // Use useMemo to calculate filteredData only when selectedYear changes
+  const filteredData = useMemo(() => {
+    return regionData.filter((item) => item.YEAR === selectedYear)
+  }, [selectedYear])
 
+  // First useEffect - only runs once to set isClient and load GeoJSON
   useEffect(() => {
     setIsClient(true)
 
@@ -42,20 +45,19 @@ export default function PhilippinesMap() {
       }
     }
 
-    if (isClient) {
-      loadGeoJson()
-    }
-  }, [isClient])
+    loadGeoJson()
+  }, []) // Empty dependency array - runs only once
 
+  // Second useEffect - prepare plot data when dependencies change
   useEffect(() => {
-    if (!geoJson || !isClient) return
+    if (!geoJson || !isClient || !filteredData.length) return
 
     // Prepare data for the choropleth map
     const data = [
       {
         type: "choropleth",
         geojson: geoJson,
-        featureidkey: "properties.adm1_psgc",
+        featureidkey: "properties.id",
         locations: filteredData.map((region) => region.adm1_psgc),
         z: filteredData.map((region) => Number.parseFloat(region["ELECTRIFICATION RATE"]) * 100),
         text: filteredData.map((region) => region.REGION),
@@ -83,44 +85,47 @@ export default function PhilippinesMap() {
     setPlotData(data)
   }, [geoJson, filteredData, isDarkTheme, isClient])
 
-  const layout = {
-    title: "",
-    geo: {
-      scope: "asia",
-      showframe: false,
-      showcoastlines: true,
-      projection: {
-        type: "mercator",
+  // Use useMemo for layout to prevent unnecessary recalculations
+  const layout = useMemo(() => {
+    return {
+      title: "",
+      geo: {
+        scope: "asia",
+        showframe: false,
+        showcoastlines: true,
+        projection: {
+          type: "mercator",
+        },
+        center: {
+          lon: 122,
+          lat: 12,
+        },
+        lonaxis: {
+          range: [116, 127],
+        },
+        lataxis: {
+          range: [4, 21],
+        },
+        bgcolor: isDarkTheme ? "rgb(17, 17, 17)" : "white",
+        lakecolor: isDarkTheme ? "rgb(17, 17, 17)" : "white",
+        landcolor: isDarkTheme ? "rgb(40, 40, 40)" : "rgb(240, 240, 240)",
+        oceancolor: isDarkTheme ? "rgb(17, 17, 17)" : "white",
       },
-      center: {
-        lon: 122,
-        lat: 12,
+      paper_bgcolor: isDarkTheme ? "rgb(17, 17, 17)" : "white",
+      plot_bgcolor: isDarkTheme ? "rgb(17, 17, 17)" : "white",
+      margin: {
+        l: 0,
+        r: 0,
+        t: 0,
+        b: 0,
       },
-      lonaxis: {
-        range: [116, 127],
+      height: 500,
+      autosize: true,
+      font: {
+        color: isDarkTheme ? "white" : "black",
       },
-      lataxis: {
-        range: [4, 21],
-      },
-      bgcolor: isDarkTheme ? "rgb(17, 17, 17)" : "white",
-      lakecolor: isDarkTheme ? "rgb(17, 17, 17)" : "white",
-      landcolor: isDarkTheme ? "rgb(40, 40, 40)" : "rgb(240, 240, 240)",
-      oceancolor: isDarkTheme ? "rgb(17, 17, 17)" : "white",
-    },
-    paper_bgcolor: isDarkTheme ? "rgb(17, 17, 17)" : "white",
-    plot_bgcolor: isDarkTheme ? "rgb(17, 17, 17)" : "white",
-    margin: {
-      l: 0,
-      r: 0,
-      t: 0,
-      b: 0,
-    },
-    height: 500,
-    autosize: true,
-    font: {
-      color: isDarkTheme ? "white" : "black",
-    },
-  }
+    }
+  }, [isDarkTheme])
 
   const config = {
     responsive: true,
