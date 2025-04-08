@@ -20,11 +20,7 @@ const normalizeId = (id: any): string => {
 const mapRegionPsgcToGeoJson = (psgc) => {
   // Create a mapping for the regions that don't match
   const psgcMapping = {
-    "130000000": 1300000000, // NCR (National Capital Region)
-    "140000000": 1400000000, // CAR (Cordillera Administrative Region)
-    "150000000": 1900000000, // BARMM (Bangsamoro Autonomous Region)
-    "410000000": 400000000,  // CALABARZON
-    "420000000": 400000000   // MIMAROPA
+    "1500000000": 1900000000  // BARMM (Bangsamoro Autonomous Region)
   };
   
   // Return mapped value if it exists, otherwise return the original as a number
@@ -151,42 +147,48 @@ export default function PhilippinesMap() {
       },
     ]
 
-    // Check if each data point has a matching feature
+    // Check if any unmatched regions remain
     const unmatchedRegions = normalizedData.filter(region => 
       !geoJson.features.some(feature => 
         Number(feature.properties.adm1_psgc) === mapRegionPsgcToGeoJson(region.adm1_psgc))
     );
+
     if (unmatchedRegions.length > 0) {
       console.warn("Unmatched regions:", unmatchedRegions);
       console.warn("Available PSGCs in GeoJSON:", 
         geoJson.features.map(f => f.properties.adm1_psgc));
-    }
-
-    // If we still have unmatched regions, try matching by name as a fallback
-    if (unmatchedRegions.length > 0) {
       console.log("Attempting to match by region name as fallback");
       
-      // Create a new plot data array that handles both PSGC and name matching
-      const fallbackData = [
-        {
-          ...data[0], // Copy all properties from the original data object
-          featureidkey: "properties.adm1_en", // Try matching by name
-          locations: normalizedData.map(region => {
-            // Try to find a match by PSGC first
-            const psgcMatch = geoJson.features.some(feature => 
-              Number(feature.properties.adm1_psgc) === mapRegionPsgcToGeoJson(region.adm1_psgc)
-            );
-            
-            // If PSGC matches, use it, otherwise use region name
-            return psgcMatch ? mapRegionPsgcToGeoJson(region.adm1_psgc) : region.REGION;
-          }),
-        }
-      ];
+      // Create a special handling for BARMM which might be named differently
+      const specialRegionMap = {
+        "Bangsamoro Autonomous Region in Muslim Mindanao (BARMM)": 1900000000
+      };
       
-      setPlotData(fallbackData);
-    } else {
-      setPlotData(data);
+      // Update the locations array with special handling for unmatched regions
+      data[0].locations = normalizedData.map(region => {
+        // First try the standard PSGC mapping
+        const mappedPsgc = mapRegionPsgcToGeoJson(region.adm1_psgc);
+        
+        // Check if this region is matched with the mapped PSGC
+        const isPsgcMatched = geoJson.features.some(feature => 
+          Number(feature.properties.adm1_psgc) === mappedPsgc
+        );
+        
+        if (isPsgcMatched) {
+          return mappedPsgc;
+        }
+        
+        // If not matched by PSGC, check if it's one of our special regions
+        if (specialRegionMap[region.REGION]) {
+          return specialRegionMap[region.REGION];
+        }
+        
+        // Default to the original mapped PSGC
+        return mappedPsgc;
+      });
     }
+
+    setPlotData(data);
   }, [geoJson, filteredData, isDarkTheme, isClient])
 
   // Use useMemo for layout to prevent unnecessary recalculations
