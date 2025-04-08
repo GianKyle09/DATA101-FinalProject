@@ -5,7 +5,8 @@ import EnergyMap from "@/components/energy-map"
 import ConsumptionChart from "@/components/consumption-chart"
 import ProductionChart from "@/components/production-chart"
 import RenewableEnergyChart from "@/components/renewable-energy-chart"
-import PhilippinesMap from "@/components/philippines-map"
+// Import the fixed map component
+import PhilippinesMap from "@/components/philippines-map-fix"
 
 export const metadata: Metadata = {
   title: "DATA101 - S12 Group 6 | Energy Statistics Dashboard",

@@ -10,13 +10,18 @@ import { useThemeDetector } from "@/hooks/use-theme-detector"
 // Dynamically import Plotly to avoid SSR issues
 const Plot = dynamic(() => import("react-plotly.js"), { ssr: false })
 
+// Helper function to normalize IDs for comparison
+const normalizeId = (id: any): string => {
+  if (id === undefined || id === null) return ""
+  return String(id).trim()
+}
+
 export default function PhilippinesMap() {
   const [selectedYear, setSelectedYear] = useState("2020")
   const [plotData, setPlotData] = useState<any>(null)
   const [geoJson, setGeoJson] = useState<any>(null)
   const [isClient, setIsClient] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
-  const [debugInfo, setDebugInfo] = useState<any>(null)
   const isDarkTheme = useThemeDetector()
 
   // Use useMemo to calculate filteredData only when selectedYear changes
@@ -38,6 +43,32 @@ export default function PhilippinesMap() {
           throw new Error("GeoJSON file not found")
         }
         const data = await response.json()
+
+        // Process the GeoJSON to ensure IDs are in the right format
+        if (data && data.features) {
+          // Add a normalized ID to each feature for easier matching
+          data.features = data.features.map((feature: any) => {
+            // Try to extract ID from various possible locations
+            const possibleIds = [
+              feature.id,
+              feature.properties?.id,
+              feature.properties?.adm1_psgc,
+              feature.properties?.PSGC,
+            ]
+
+            // Find the first non-empty ID
+            const id = possibleIds.find((id) => id !== undefined && id !== null)
+
+            // Add a normalized ID to the properties
+            if (id !== undefined) {
+              feature.properties = feature.properties || {}
+              feature.properties._normalizedId = normalizeId(id)
+            }
+
+            return feature
+          })
+        }
+
         setGeoJson(data)
         setIsLoading(false)
       } catch (error) {
@@ -53,61 +84,25 @@ export default function PhilippinesMap() {
   useEffect(() => {
     if (!geoJson || !isClient || !filteredData.length) return
 
-    // Debug: Log GeoJSON structure and our data to identify mismatches
-    const geoJsonIds = geoJson.features.map((feature: any) => {
-      // Extract the ID that should match our data
-      return {
-        id: feature.properties.id || feature.id || feature.properties.adm1_psgc,
-        properties: feature.properties,
-      }
-    })
+    // Normalize our data IDs
+    const normalizedData = filteredData.map((region) => ({
+      ...region,
+      _normalizedId: normalizeId(region.adm1_psgc),
+    }))
 
-    const dataIds = filteredData.map((region) => region.adm1_psgc)
-
-    // Find which IDs from our data are missing in the GeoJSON
-    const missingInGeoJson = dataIds.filter((id) => !geoJsonIds.some((geoId: any) => String(geoId.id) === String(id)))
-
-    // Find which IDs from GeoJSON are missing in our data
-    const missingInData = geoJsonIds.filter((geoId: any) => !dataIds.some((id) => String(id) === String(geoId.id)))
-
-    // Store debug info for display
-    setDebugInfo({
-      geoJsonFeatureCount: geoJson.features.length,
-      dataCount: filteredData.length,
-      missingInGeoJson,
-      missingInData,
-      sampleGeoJsonFeature: geoJson.features[0],
-      sampleDataItem: filteredData[0],
-    })
-
-    console.log("Debug Info:", {
-      geoJsonFeatureCount: geoJson.features.length,
-      dataCount: filteredData.length,
-      missingInGeoJson,
-      missingInData,
-      sampleGeoJsonFeature: geoJson.features[0],
-      sampleDataItem: filteredData[0],
-    })
-
-    // Try to determine the correct ID field in the GeoJSON
-    let featureIdKey = "properties.adm1_psgc"
-    if (geoJson.features[0]?.properties?.id) {
-      featureIdKey = "properties.id"
-    } else if (geoJson.features[0]?.id) {
-      featureIdKey = "id"
-    }
-
-    console.log("Using featureIdKey:", featureIdKey)
+    // Log the first few features and data items for debugging
+    console.log("First 3 GeoJSON features:", geoJson.features.slice(0, 3))
+    console.log("First 3 data items:", normalizedData.slice(0, 3))
 
     // Prepare data for the choropleth map
     const data = [
       {
         type: "choropleth",
         geojson: geoJson,
-        featureidkey: featureIdKey,
-        locations: filteredData.map((region) => region.adm1_psgc),
-        z: filteredData.map((region) => Number.parseFloat(region["ELECTRIFICATION RATE"]) * 100),
-        text: filteredData.map(
+        featureidkey: "properties._normalizedId",
+        locations: normalizedData.map((region) => region._normalizedId),
+        z: normalizedData.map((region) => Number.parseFloat(region["ELECTRIFICATION RATE"]) * 100),
+        text: normalizedData.map(
           (region) =>
             `${region.REGION}<br>Electrification Rate: ${(Number.parseFloat(region["ELECTRIFICATION RATE"]) * 100).toFixed(1)}%`,
         ),
@@ -208,51 +203,6 @@ export default function PhilippinesMap() {
         {isClient && !isLoading && geoJson && plotData ? (
           <div className="relative">
             <Plot data={plotData} layout={layout} config={config} style={{ width: "100%", height: "100%" }} />
-
-            {/* Debug panel - can be removed in production */}
-            {debugInfo && (
-              <div className="mt-4 p-4 bg-muted rounded-lg text-xs overflow-auto max-h-40">
-                <h4 className="font-bold mb-2">Debug Information</h4>
-                <p>GeoJSON Features: {debugInfo.geoJsonFeatureCount}</p>
-                <p>Data Items: {debugInfo.dataCount}</p>
-                <p>Missing in GeoJSON: {debugInfo.missingInGeoJson.length} IDs</p>
-                <p>Missing in Data: {debugInfo.missingInData.length} IDs</p>
-                <details>
-                  <summary className="cursor-pointer">View Details</summary>
-                  <div className="mt-2">
-                    <p className="font-bold">Sample GeoJSON Feature ID Structure:</p>
-                    <pre className="bg-card p-2 rounded mt-1 overflow-auto">
-                      {JSON.stringify(
-                        {
-                          id: debugInfo.sampleGeoJsonFeature?.id,
-                          "properties.id": debugInfo.sampleGeoJsonFeature?.properties?.id,
-                          "properties.adm1_psgc": debugInfo.sampleGeoJsonFeature?.properties?.adm1_psgc,
-                        },
-                        null,
-                        2,
-                      )}
-                    </pre>
-
-                    <p className="font-bold mt-2">Sample Data Item:</p>
-                    <pre className="bg-card p-2 rounded mt-1 overflow-auto">
-                      {JSON.stringify(
-                        {
-                          adm1_psgc: debugInfo.sampleDataItem?.adm1_psgc,
-                          REGION: debugInfo.sampleDataItem?.REGION,
-                        },
-                        null,
-                        2,
-                      )}
-                    </pre>
-
-                    <p className="font-bold mt-2">Missing IDs in GeoJSON:</p>
-                    <pre className="bg-card p-2 rounded mt-1 overflow-auto">
-                      {JSON.stringify(debugInfo.missingInGeoJson, null, 2)}
-                    </pre>
-                  </div>
-                </details>
-              </div>
-            )}
           </div>
         ) : isClient && !isLoading && !geoJson ? (
           <div className="flex flex-col space-y-4">
