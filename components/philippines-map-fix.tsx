@@ -100,7 +100,7 @@ export default function PhilippinesMap() {
         type: "choropleth",
         geojson: geoJson,
         featureidkey: "properties.adm1_psgc",
-        locations: normalizedData.map((region) => region.adm1_psgc),
+        locations: normalizedData.map((region) => Number(region.adm1_psgc)), // Convert to number
         z: normalizedData.map((region) => Number.parseFloat(region["ELECTRIFICATION RATE"]) * 100),
         text: normalizedData.map(
           (region) =>
@@ -112,10 +112,10 @@ export default function PhilippinesMap() {
         zmax: 100,
         marker: {
           line: {
-            color: isDarkTheme ? "rgba(255,255,255,0.8)" : "rgba(0,0,0,0.8)",
-            width: 1.5,
+            color: isDarkTheme ? "rgba(255,255,255,0.9)" : "rgba(0,0,0,0.9)",
+            width: 2, // Thicker lines
           },
-          opacity: 0.85,
+          opacity: 0.9, // Less transparency
         },
         colorbar: {
           title: "Electrification Rate (%)",
@@ -139,12 +139,12 @@ export default function PhilippinesMap() {
     // Check if each data point has a matching feature
     const unmatchedRegions = normalizedData.filter(region => 
       !geoJson.features.some(feature => 
-        String(feature.properties.adm1_psgc) === String(region.adm1_psgc))
+        Number(feature.properties.adm1_psgc) === Number(region.adm1_psgc))
     );
     if (unmatchedRegions.length > 0) {
       console.warn("Unmatched regions:", unmatchedRegions);
       console.warn("Available PSGCs in GeoJSON:", 
-        geoJson.features.map(f => f.properties.adm1_psgc));
+        geoJson.features.map(f => Number(f.properties.adm1_psgc)));
     }
 
     setPlotData(data)
