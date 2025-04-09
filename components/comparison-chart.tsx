@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import dynamic from "next/dynamic"
 import { comparisonData } from "@/data/comparison-data"
+import { gdpData } from "@/data/gdp-data"
 
 // Add the theme detector import
 import { useThemeDetector } from "@/hooks/use-theme-detector"
@@ -30,7 +31,7 @@ export default function ComparisonChart({
 
   useEffect(() => {
     setIsClient(true)
-
+  
     // Filter data for selected countries and metric
     const filteredData = comparisonData
       .filter((item) => countries.includes(item.country))
@@ -38,9 +39,9 @@ export default function ComparisonChart({
         country: item.country,
         value: item[metric as keyof typeof item] as number,
       }))
-
+  
     if (chartType === "bar") {
-      // Bar chart
+      // Bar chart data (unchanged)
       const data = [
         {
           x: filteredData.map((item) => item.country),
@@ -55,10 +56,10 @@ export default function ComparisonChart({
           },
         },
       ]
-
+  
       setPlotData(data)
     } else if (chartType === "radar") {
-      // Radar chart
+      // Radar chart data (unchanged)
       const data = [
         {
           type: "scatterpolar",
@@ -68,13 +69,13 @@ export default function ComparisonChart({
           name: metric,
         },
       ]
-
+  
       setPlotData(data)
     } else if (chartType === "scatter") {
-      // Scatter plot with GDP vs energy
+      // Scatter plot with real GDP vs energy (MODIFIED)
       const data = [
         {
-          x: filteredData.map((item) => Math.random() * 1000 + 500), // Random GDP values for demo
+          x: filteredData.map((item) => gdpData[item.country] || 0), // Real GDP values
           y: filteredData.map((item) => item.value),
           mode: "markers+text",
           type: "scatter",
@@ -90,7 +91,7 @@ export default function ComparisonChart({
           },
         },
       ]
-
+  
       setPlotData(data)
     }
   }, [chartType, countries, metric])
@@ -175,6 +176,8 @@ export default function ComparisonChart({
       title: "GDP per Capita (USD)",
       color: isDarkTheme ? "white" : "black",
       gridcolor: isDarkTheme ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)",
+      type: "log", // Use log scale for better visualization of wide-ranging GDP values
+      tickformat: ",.0f", // Format with commas for thousands
     },
     yaxis: {
       title: getMetricTitle(metric),
