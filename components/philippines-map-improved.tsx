@@ -237,7 +237,8 @@ export default function PhilippinesMap() {
             {error && <p className="text-red-500">Error: {error}</p>}
             {geojsonData && (
               <svg
-                viewBox="116 4 10 20"
+                preserveAspectRatio="xMidYMid meet"
+                viewBox="115 0 30 30"
                 className="w-full h-auto border border-gray-200 dark:border-gray-700 rounded-lg"
                 style={{ backgroundColor: isDarkTheme ? "#111" : "#fff" }}
               >
