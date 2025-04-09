@@ -1,44 +1,38 @@
-import type { Metadata } from "next"
+"use client"
+
+import { useState } from "react"
 import DashboardHeader from "@/components/dashboard-header"
-import StatisticsOverview from "@/components/statistics-overview"
-import EnergyMap from "@/components/energy-map"
-import ConsumptionChart from "@/components/consumption-chart"
-import ProductionChart from "@/components/production-chart"
-import RenewableEnergyChart from "@/components/renewable-energy-chart"
-// Import the improved map component
-import PhilippinesMap from "@/components/philippines-map-improved"
+import CountrySelector from "@/components/country-selector"
+import CountryEnergyProfile from "@/components/country-energy-profile"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
-export const metadata: Metadata = {
-  title: "DATA101 - S12 Group 6 | Energy Statistics Dashboard",
-  description:
-    "Comprehensive visualization of energy statistics across Philippines and ASEAN countries by DATA101 - S12 Group 6",
-}
+export default function CountriesPage() {
+  const [selectedCountry, setSelectedCountry] = useState("philippines")
 
-export default function Home() {
+  const handleCountryChange = (country: string) => {
+    setSelectedCountry(country.toLowerCase())
+  }
+
   return (
     <div className="flex flex-col min-h-screen">
       <DashboardHeader />
       <main className="flex-1 container mx-auto px-4 py-6">
-        <h1 className="text-3xl font-bold mb-6">DATA101 - S12 Group 6 Energy Dashboard</h1>
+        <h1 className="text-3xl font-bold mb-6">Country Energy Profiles</h1>
 
-        <StatisticsOverview />
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle>Select a Country</CardTitle>
+            <CardDescription>View detailed energy statistics for a specific country</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <CountrySelector onCountryChange={handleCountryChange} />
+          </CardContent>
+        </Card>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-          <div className="col-span-1 lg:col-span-2 mb-6">
-            <PhilippinesMap />
-          </div>
-          <div className="col-span-1 lg:col-span-2 mb-6">
-            <EnergyMap />
-          </div>
-          <ConsumptionChart />
-          <ProductionChart />
-          <div className="col-span-1 lg:col-span-2 mt-6">
-            <RenewableEnergyChart />
-          </div>
-        </div>
+        <CountryEnergyProfile country={selectedCountry} />
       </main>
       <footer className="border-t py-4 text-center text-sm text-gray-500">
-        DATA101 - S12 Group 6 (Members: Apale, Masinda, Rayel, Sanchez) © {new Date().getFullYear()}
+      ASEAN PowerPulse by DATA101 - S12 Group 6 (Members: Apale, Masinda, Rayel, Sanchez) © {new Date().getFullYear()}
       </footer>
     </div>
   )
