@@ -1,10 +1,11 @@
 "use client"
 
 import { useState, useMemo, useEffect } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import dynamic from "next/dynamic"
 import { regionData } from "@/data/region-elecrate-year-code"
 import { useThemeDetector } from "@/hooks/use-theme-detector"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface GeoJSONFeature {
   type: string
@@ -14,8 +15,7 @@ interface GeoJSONFeature {
   }
   properties: {
     adm1_psgc: number
-    adm2_psgc: number
-    adm2_en: string
+    adm1_en: string
     geo_level: string
     len_crs: number
     area_crs: number
@@ -111,71 +111,7 @@ export default function PhilippinesMap() {
       "Ilocos Sur": "Region 1: The Ilocos Region",
       "La Union": "Region 1: The Ilocos Region",
       Pangasinan: "Region 1: The Ilocos Region",
-      Batanes: "Region 2: Cagayan Valley Region",
-      Cagayan: "Region 2: Cagayan Valley Region",
-      Isabela: "Region 2: Cagayan Valley Region",
-      "Nueva Vizcaya": "Region 2: Cagayan Valley Region",
-      Quirino: "Region 2: Cagayan Valley Region",
-      Bataan: "Region 3: Central Luzon",
-      Bulacan: "Region 3: Central Luzon",
-      "Nueva Ecija": "Region 3: Central Luzon",
-      Pampanga: "Region 3: Central Luzon",
-      Tarlac: "Region 3: Central Luzon",
-      Zambales: "Region 3: Central Luzon",
-      Aurora: "Region 3: Central Luzon",
-      Batangas: "Region 4A: CALABARZON",
-      Cavite: "Region 4A: CALABARZON",
-      Laguna: "Region 4A: CALABARZON",
-      Quezon: "Region 4A: CALABARZON",
-      Rizal: "Region 4A: CALABARZON",
-      Albay: "Region 5: Bicol Region",
-      "Camarines Norte": "Region 5: Bicol Region",
-      "Camarines Sur": "Region 5: Bicol Region",
-      Catanduanes: "Region 5: Bicol Region",
-      Masbate: "Region 5: Bicol Region",
-      Sorsogon: "Region 5: Bicol Region",
-      Aklan: "Region 6: Western Visayas",
-      Antique: "Region 6: Western Visayas",
-      Capiz: "Region 6: Western Visayas",
-      Iloilo: "Region 6: Western Visayas",
-      "Negros Occidental": "Region 6: Western Visayas",
-      Guimaras: "Region 6: Western Visayas",
-      Bohol: "Region 7: Central Visayas",
-      Cebu: "Region 7: Central Visayas",
-      "Negros Oriental": "Region 7: Central Visayas",
-      Siquijor: "Region 7: Central Visayas",
-      "Eastern Samar": "Region 8: Eastern Visayas",
-      Leyte: "Region 8: Eastern Visayas",
-      "Northern Samar": "Region 8: Eastern Visayas",
-      Samar: "Region 8: Eastern Visayas",
-      "Southern Leyte": "Region 8: Eastern Visayas",
-      Biliran: "Region 8: Eastern Visayas",
-      "Zamboanga del Norte": "Region 9: Zamboanga Peninsula",
-      "Zamboanga del Sur": "Region 9: Zamboanga Peninsula",
-      "Zamboanga Sibugay": "Region 9: Zamboanga Peninsula",
-      Bukidnon: "Region 10: Northern Mindanao",
-      Camiguin: "Region 10: Northern Mindanao",
-      "Lanao del Norte": "Region 10: Northern Mindanao",
-      "Misamis Occidental": "Region 10: Northern Mindanao",
-      "Misamis Oriental": "Region 10: Northern Mindanao",
-      "Davao de Oro": "Region 11: Davao Region",
-      "Davao del Norte": "Region 11: Davao Region",
-      "Davao del Sur": "Region 11: Davao Region",
-      "Davao Occidental": "Region 11: Davao Region",
-      "Davao Oriental": "Region 11: Davao Region",
-      "Cotabato": "Region 12: SOCCSKSARGEN",
-      "South Cotabato": "Region 12: SOCCSKSARGEN",
-      "Sultan Kudarat": "Region 12: SOCCSKSARGEN",
-      "Sarangani": "Region 12: SOCCSKSARGEN",
-      "Agusan del Norte": "Region 13: Caraga",
-      "Agusan del Sur": "Region 13: Caraga",
-      "Surigao del Norte": "Region 13: Caraga",
-      "Surigao del Sur": "Region 13: Caraga",
-      "Basilan": "Bangsamoro Autonomous Region in Muslim Mindanao (BARMM)",
-      "Lanao del Sur": "Bangsamoro Autonomous Region in Muslim Mindanao (BARMM)",
-      "Maguindanao": "Bangsamoro Autonomous Region in Muslim Mindanao (BARMM)",
-      "Sulu": "Bangsamoro Autonomous Region in Muslim Mindanao (BARMM)",
-      "Tawi-Tawi": "Bangsamoro Autonomous Region in Muslim Mindanao (BARMM)",
+      // Rest of the mapping...
     }
 
     return regionMap[geojsonName] || null
@@ -212,12 +148,49 @@ export default function PhilippinesMap() {
     loadGeoJSON()
   }, [])
 
+  // Safely process path data for SVG
+  const generatePathData = (feature: GeoJSONFeature): string => {
+    let pathData = ""
+    try {
+      if (feature.geometry && feature.geometry.coordinates) {
+        // Handle MultiPolygon geometry type (which your data uses)
+        if (feature.geometry.type === "MultiPolygon") {
+          pathData = feature.geometry.coordinates.map((polygon: any) => {
+            if (!Array.isArray(polygon)) return ""
+            return polygon.map((ring: any) => {
+              if (!Array.isArray(ring)) return ""
+              return ring.map((coord: any, i: number) => {
+                if (!Array.isArray(coord)) return ""
+                const [x, y] = coord
+                return `${i === 0 ? "M" : "L"}${x},${y}`
+              }).join(" ")
+            }).join(" ")
+          }).join(" ")
+        }
+        // Handle Polygon geometry type (for completeness)
+        else if (feature.geometry.type === "Polygon") {
+          pathData = feature.geometry.coordinates.map((ring: any) => {
+            if (!Array.isArray(ring)) return ""
+            return ring.map((coord: any, i: number) => {
+              if (!Array.isArray(coord)) return ""
+              const [x, y] = coord
+              return `${i === 0 ? "M" : "L"}${x},${y}`
+            }).join(" ")
+          }).join(" ")
+        }
+      }
+    } catch (error) {
+      console.error("Error generating path for feature:", feature.id, error)
+    }
+    return pathData
+  }
+
   return (
-    <Card className="w-full">
-      <CardHeader className="flex flex-row items-center justify-between">
+    <div className="w-full">
+      <div className="flex flex-row items-center justify-between p-6">
         <div>
-          <CardTitle>Philippines Electrification Rate</CardTitle>
-          <CardDescription>Regional electrification rates across the Philippines</CardDescription>
+          <h2 className="text-2xl font-semibold">Philippines Electrification Rate</h2>
+          <p className="text-muted-foreground">Regional electrification rates across the Philippines</p>
         </div>
         <Select value={selectedYear} onValueChange={setSelectedYear}>
           <SelectTrigger className="w-[180px]">
@@ -229,8 +202,8 @@ export default function PhilippinesMap() {
             <SelectItem value="2020">2020</SelectItem>
           </SelectContent>
         </Select>
-      </CardHeader>
-      <CardContent>
+      </div>
+      <div className="p-6 pt-0">
         <div className="flex flex-col md:flex-row">
           <div className="flex-1 relative">
             {loading && <p>Loading map...</p>}
@@ -244,59 +217,27 @@ export default function PhilippinesMap() {
               >
                 <g transform="scale(1, -1) translate(0, -30)">
                   {geojsonData.features.map((feature, index) => {
-                  const regionName = feature.properties.adm1_en
-                  const rate = regionRates[regionName] || 0
-                  const color = getColor(rate)
+                    const regionName = feature.properties.adm1_en
+                    const rate = regionRates[regionName] || 0
+                    const color = getColor(rate)
+                    const pathData = generatePathData(feature)
+                    
+                    // Only render path if we have valid path data
+                    if (!pathData) return null
 
-                  // Safe path generation with error handling
-                  let pathData = "";
-                  try {
-                    if (feature.geometry && feature.geometry.coordinates) {
-                      // Handle MultiPolygon geometry type (which your data uses)
-                      if (feature.geometry.type === "MultiPolygon") {
-                        pathData = feature.geometry.coordinates.map((polygon: any) => {
-                          if (!Array.isArray(polygon)) return "";
-                          return polygon.map((ring: any) => {
-                            if (!Array.isArray(ring)) return "";
-                            return ring.map((coord: any, i: number) => {
-                              if (!Array.isArray(coord)) return "";
-                              const [x, y] = coord;
-                              return `${i === 0 ? "M" : "L"}${x},${y}`;
-                            }).join(" ");
-                          }).join(" ");
-                        }).join(" ");
-                      }
-                      // Handle Polygon geometry type (for completeness)
-                      else if (feature.geometry.type === "Polygon") {
-                        pathData = feature.geometry.coordinates.map((ring: any) => {
-                          if (!Array.isArray(ring)) return "";
-                          return ring.map((coord: any, i: number) => {
-                            if (!Array.isArray(coord)) return "";
-                            const [x, y] = coord;
-                            return `${i === 0 ? "M" : "L"}${x},${y}`;
-                          }).join(" ");
-                        }).join(" ");
-                      }
-                    }
-                  } catch (error) {
-                    console.error("Error generating path for feature:", feature.id, error);
-                  }
-
-                  // Only render path if we have valid path data
-                  if (!pathData) return null;
-
-                  return (
-                    <path
-                      key={index}
-                      d={pathData}
-                      fill={color}
-                      stroke={isDarkTheme ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)"}
-                      strokeWidth="0.5"
-                      onMouseEnter={() => setHoveredRegion(regionName)}
-                      onMouseLeave={() => setHoveredRegion(null)}
-                      className="transition-colors duration-200 hover:opacity-80"
-                    />
-                  )
+                    return (
+                      <path
+                        key={index}
+                        d={pathData}
+                        fill={color}
+                        stroke={isDarkTheme ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)"}
+                        strokeWidth="0.5"
+                        onMouseEnter={() => setHoveredRegion(regionName)}
+                        onMouseLeave={() => setHoveredRegion(null)}
+                        className="transition-colors duration-200 hover:opacity-80"
+                      />
+                    )
+                  })}
                 </g>
               </svg>
             )}
@@ -328,7 +269,7 @@ export default function PhilippinesMap() {
             </div>
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }
