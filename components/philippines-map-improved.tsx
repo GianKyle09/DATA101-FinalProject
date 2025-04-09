@@ -242,20 +242,51 @@ export default function PhilippinesMap() {
                 style={{ backgroundColor: isDarkTheme ? "#111" : "#fff" }}
               >
                 {geojsonData.features.map((feature, index) => {
-                  const regionName = feature.properties.adm1_en
-                  const rate = regionRates[regionName] || 0
+                  const regionName = feature.properties.adm2_en
+                  const rate = getRegionRateFromProvince(regionName) || 0
                   const color = getColor(rate)
+
+                  // Safe path generation with error handling
+                  let pathData = "";
+                  try {
+                    if (feature.geometry && feature.geometry.coordinates) {
+                      // Handle different geometry types
+                      if (feature.geometry.type === "Polygon") {
+                        // For Polygon type
+                        pathData = feature.geometry.coordinates.map((ring: any) => {
+                          if (!Array.isArray(ring)) return "";
+                          return ring.map((coord: any, i: number) => {
+                            if (!Array.isArray(coord)) return "";
+                            const [x, y] = coord;
+                            return `${i === 0 ? "M" : "L"}${x},${y}`;
+                          }).join(" ");
+                        }).join(" ");
+                      } else if (feature.geometry.type === "MultiPolygon") {
+                        // For MultiPolygon type
+                        pathData = feature.geometry.coordinates.map((polygon: any) => {
+                          if (!Array.isArray(polygon)) return "";
+                          return polygon.map((ring: any) => {
+                            if (!Array.isArray(ring)) return "";
+                            return ring.map((coord: any, i: number) => {
+                              if (!Array.isArray(coord)) return "";
+                              const [x, y] = coord;
+                              return `${i === 0 ? "M" : "L"}${x},${y}`;
+                            }).join(" ");
+                          }).join(" ");
+                        }).join(" ");
+                      }
+                    }
+                  } catch (error) {
+                    console.error("Error generating path for feature:", feature.id, error);
+                  }
+
+                  // Only render path if we have valid path data
+                  if (!pathData) return null;
 
                   return (
                     <path
                       key={index}
-                      d={(feature.geometry as any).coordinates.map(
-                        (polygon: any) =>
-                          polygon[0].map((coord: any, i: number) => {
-                            const [x, y] = coord
-                            return `${i === 0 ? "M" : "L"}${x},${y}`
-                          }).join(" ")
-                      ).join(" ")}
+                      d={pathData}
                       fill={color}
                       stroke={isDarkTheme ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)"}
                       strokeWidth="0.5"
