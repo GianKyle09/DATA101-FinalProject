@@ -242,7 +242,8 @@ export default function PhilippinesMap() {
                 className="w-full h-auto border border-gray-200 dark:border-gray-700 rounded-lg"
                 style={{ backgroundColor: isDarkTheme ? "#111" : "#fff" }}
               >
-                {geojsonData.features.map((feature, index) => {
+                <g transform="scale(1, -1) translate(0, -30)">
+                  {geojsonData.features.map((feature, index) => {
                   const regionName = feature.properties.adm1_en
                   const rate = regionRates[regionName] || 0
                   const color = getColor(rate)
@@ -296,7 +297,7 @@ export default function PhilippinesMap() {
                       className="transition-colors duration-200 hover:opacity-80"
                     />
                   )
-                })}
+                </g>
               </svg>
             )}
           </div>
