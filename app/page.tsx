@@ -6,7 +6,7 @@ import ConsumptionChart from "@/components/consumption-chart"
 import ProductionChart from "@/components/production-chart"
 import RenewableEnergyChart from "@/components/renewable-energy-chart"
 // Import the fixed map component
-import PhilippinesMap from "@/components/philippines-map-fix"
+import PhilippinesMap from "@/components/philippines-map-improved"
 
 export const metadata: Metadata = {
   title: "DATA101 - S12 Group 6 | ASEAN PowerPulse",
