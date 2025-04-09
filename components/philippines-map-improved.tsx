@@ -242,27 +242,16 @@ export default function PhilippinesMap() {
                 style={{ backgroundColor: isDarkTheme ? "#111" : "#fff" }}
               >
                 {geojsonData.features.map((feature, index) => {
-                  const regionName = feature.properties.adm2_en
-                  const rate = getRegionRateFromProvince(regionName) || 0
+                  const regionName = feature.properties.adm1_en
+                  const rate = regionRates[regionName] || 0
                   const color = getColor(rate)
 
                   // Safe path generation with error handling
                   let pathData = "";
                   try {
                     if (feature.geometry && feature.geometry.coordinates) {
-                      // Handle different geometry types
-                      if (feature.geometry.type === "Polygon") {
-                        // For Polygon type
-                        pathData = feature.geometry.coordinates.map((ring: any) => {
-                          if (!Array.isArray(ring)) return "";
-                          return ring.map((coord: any, i: number) => {
-                            if (!Array.isArray(coord)) return "";
-                            const [x, y] = coord;
-                            return `${i === 0 ? "M" : "L"}${x},${y}`;
-                          }).join(" ");
-                        }).join(" ");
-                      } else if (feature.geometry.type === "MultiPolygon") {
-                        // For MultiPolygon type
+                      // Handle MultiPolygon geometry type (which your data uses)
+                      if (feature.geometry.type === "MultiPolygon") {
                         pathData = feature.geometry.coordinates.map((polygon: any) => {
                           if (!Array.isArray(polygon)) return "";
                           return polygon.map((ring: any) => {
@@ -272,6 +261,17 @@ export default function PhilippinesMap() {
                               const [x, y] = coord;
                               return `${i === 0 ? "M" : "L"}${x},${y}`;
                             }).join(" ");
+                          }).join(" ");
+                        }).join(" ");
+                      }
+                      // Handle Polygon geometry type (for completeness)
+                      else if (feature.geometry.type === "Polygon") {
+                        pathData = feature.geometry.coordinates.map((ring: any) => {
+                          if (!Array.isArray(ring)) return "";
+                          return ring.map((coord: any, i: number) => {
+                            if (!Array.isArray(coord)) return "";
+                            const [x, y] = coord;
+                            return `${i === 0 ? "M" : "L"}${x},${y}`;
                           }).join(" ");
                         }).join(" ");
                       }
