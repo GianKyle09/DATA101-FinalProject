@@ -120,7 +120,7 @@ The dashboard is organized into three main sections:
 
 ## 📊 Data Sources
 
-The dashboard uses simulated data for demonstration purposes. In a production environment, this would be replaced with real data from sources such as:
+The dashboard uses real data from sources such as:
 
 - International Energy Agency (IEA)
 - ASEAN Centre for Energy (ACE)
