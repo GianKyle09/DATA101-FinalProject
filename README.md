@@ -152,4 +152,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ---
 
-Developed as a final project for DATA101 at Ateneo de Manila University.
+Developed as a final project for DATA101 at De La Salle University - Manila.
