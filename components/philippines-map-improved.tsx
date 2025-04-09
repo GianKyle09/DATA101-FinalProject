@@ -1,18 +1,10 @@
 "use client"
 
 import { useState, useMemo, useEffect } from "react"
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { regionData } from "@/data/region-elecrate-year-code"
 import { useThemeDetector } from "@/hooks/use-theme-detector"
-import { Button } from "@/components/ui/button";
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 interface GeoJSONFeature {
   type: string
@@ -184,7 +176,7 @@ export default function PhilippinesMap() {
       "Maguindanao": "Bangsamoro Autonomous Region in Muslim Mindanao (BARMM)",
       "Sulu": "Bangsamoro Autonomous Region in Muslim Mindanao (BARMM)",
       "Tawi-Tawi": "Bangsamoro Autonomous Region in Muslim Mindanao (BARMM)",
-}
+    }
 
     return regionMap[geojsonName] || null
   }
@@ -238,71 +230,72 @@ export default function PhilippinesMap() {
           </SelectContent>
         </Select>
       </CardHeader>
-        <CardContent>
-          <div className="flex flex-col md:flex-row">
-            <div className="flex-1 relative">
-              {loading && <p>Loading map...</p>}
-              {error && <p className="text-red-500">Error: {error}</p>}
-              {geojsonData && (
-                <svg
-                  viewBox="70 10 250 400"
-                  className="w-full h-auto border border-gray-200 dark:border-gray-700 rounded-lg"
-                  style={{ backgroundColor: isDarkTheme ? "#111" : "#fff" }}
-                >
-                  {geojsonData.features.map((feature, index) => {
-                    const regionName = feature.properties.adm1_en
-                    const rate = regionRates[regionName] || 0
-                    const color = getColor(rate)
+      <CardContent>
+        <div className="flex flex-col md:flex-row">
+          <div className="flex-1 relative">
+            {loading && <p>Loading map...</p>}
+            {error && <p className="text-red-500">Error: {error}</p>}
+            {geojsonData && (
+              <svg
+                viewBox="70 10 250 400"
+                className="w-full h-auto border border-gray-200 dark:border-gray-700 rounded-lg"
+                style={{ backgroundColor: isDarkTheme ? "#111" : "#fff" }}
+              >
+                {geojsonData.features.map((feature, index) => {
+                  const regionName = feature.properties.adm1_en
+                  const rate = regionRates[regionName] || 0
+                  const color = getColor(rate)
 
-                    return (
-                      <path
-                        key={index}
-                        d={(feature.geometry as any).coordinates.map(
-                          (polygon: any) =>
-                            polygon[0].map((coord: any, i: number) => {
-                              const [x, y] = coord
-                              return `${i === 0 ? "M" : "L"}${x},${y}`
-                            }).join(" ")
-                        ).join(" ")}
-                        fill={color}
-                        stroke={isDarkTheme ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)"}
-                        strokeWidth="0.5"
-                        onMouseEnter={() => setHoveredRegion(regionName)}
-                        onMouseLeave={() => setHoveredRegion(null)}
-                        className="transition-colors duration-200 hover:opacity-80"
-                      />
-                    )
-                  })}
-                </svg>
-              )}
+                  return (
+                    <path
+                      key={index}
+                      d={(feature.geometry as any).coordinates.map(
+                        (polygon: any) =>
+                          polygon[0].map((coord: any, i: number) => {
+                            const [x, y] = coord
+                            return `${i === 0 ? "M" : "L"}${x},${y}`
+                          }).join(" ")
+                      ).join(" ")}
+                      fill={color}
+                      stroke={isDarkTheme ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)"}
+                      strokeWidth="0.5"
+                      onMouseEnter={() => setHoveredRegion(regionName)}
+                      onMouseLeave={() => setHoveredRegion(null)}
+                      className="transition-colors duration-200 hover:opacity-80"
+                    />
+                  )
+                })}
+              </svg>
+            )}
+          </div>
+
+          {/* Legend */}
+          <div className="mt-4 md:mt-0 md:ml-6 md:w-48">
+            <div className="bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
+              <h4 className="font-medium mb-2">Electrification Rate (%)</h4>
+              {legendItems.map((item, index) => (
+                <div key={index} className="flex items-center mb-1">
+                  <div className="w-4 h-4 mr-2" style={{ backgroundColor: item.color }}></div>
+                  <span>{index > 0 ? `${legendItems[index - 1].value}-${item.value}%` : `< ${item.value}%`}</span>
+                </div>
+              ))}
             </div>
 
-            {/* Legend */}
-            <div className="mt-4 md:mt-0 md:ml-6 md:w-48">
-              <div className="bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
-                <h4 className="font-medium mb-2">Electrification Rate (%)</h4>
-                {legendItems.map((item, index) => (
-                  <div key={index} className="flex items-center mb-1">
-                    <div className="w-4 h-4 mr-2" style={{ backgroundColor: item.color }}></div>
-                    <span>{index > 0 ? `${legendItems[index - 1].value}-${item.value}%` : `< ${item.value}%`}</span>
+            {/* Data table for small screens */}
+            <div className="mt-4 md:hidden">
+              <h4 className="font-medium mb-2">Region Data</h4>
+              <div className="max-h-60 overflow-y-auto">
+                {filteredData.map((region) => (
+                  <div key={region.REGION} className="mb-2">
+                    <p className="text-sm font-medium">{region.REGION}</p>
+                    <p className="text-sm">{(Number.parseFloat(region["ELECTRIFICATION RATE"]) * 100).toFixed(1)}%</p>
                   </div>
                 ))}
               </div>
-
-              {/* Data table for small screens */}
-              <div className="mt-4 md:hidden">
-                <h4 className="font-medium mb-2">Region Data</h4>
-                <div className="max-h-60 overflow-y-auto">
-                  {filteredData.map((region) => (
-                    <div key={region.REGION} className="mb-2">
-                      <p className="text-sm font-medium">{region.REGION}</p>
-                      <p className="text-sm">{(Number.parseFloat(region["ELECTRIFICATION RATE"]) * 100).toFixed(1)}%</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
             </div>
-          </CardContent>
-      </Card>
-    )
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  )
 }
