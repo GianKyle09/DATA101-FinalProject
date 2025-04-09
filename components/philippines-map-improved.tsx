@@ -43,13 +43,25 @@ export default function PhilippinesMap() {
     return regionData.filter((item) => item.YEAR === selectedYear)
   }, [selectedYear])
 
-  // Create a map of region to electrification rate
+  // Create a map of region to electrification rate with normalized keys
   const regionRates = useMemo(() => {
     const rates: Record<string, number> = {}
+    const normalizedRates: Record<string, number> = {}
+    
+    // First pass: store data with original keys
     filteredData.forEach((item) => {
       rates[item.REGION] = Number.parseFloat(item["ELECTRIFICATION RATE"]) * 100
+      
+      // Also store with normalized keys for more flexible matching
+      const normalizedKey = item.REGION.toLowerCase()
+        .replace(/\s+/g, ' ')
+        .replace(/[()]/g, '')
+        .trim()
+      
+      normalizedRates[normalizedKey] = Number.parseFloat(item["ELECTRIFICATION RATE"]) * 100
     })
-    return rates
+    
+    return { rates, normalizedRates }
   }, [filteredData])
 
   // Helper function to get color based on value
