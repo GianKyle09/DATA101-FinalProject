@@ -64,17 +64,31 @@ export default function ConsumptionChart() {
     margin: {
       l: 50,
       r: 30,
-      b: 50,
+      b: 60, // Increased to accommodate axis title
       t: 10,
       pad: 4,
     },
     xaxis: {
-      title: "Year",
+      title: {
+        text: "Year",
+        font: {
+          size: 14,
+          color: isDarkTheme ? "white" : "black",
+        },
+        standoff: 10, // Space between axis and title
+      },
       color: isDarkTheme ? "white" : "black",
       gridcolor: isDarkTheme ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)",
     },
     yaxis: {
-      title: "Energy Consumption (TWh)",
+      title: {
+        text: "Energy Consumption (TWh)",
+        font: {
+          size: 14,
+          color: isDarkTheme ? "white" : "black",
+        },
+        standoff: 10,
+      },
       color: isDarkTheme ? "white" : "black",
       gridcolor: isDarkTheme ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)",
     },

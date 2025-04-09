@@ -111,13 +111,27 @@ export default function ComparisonChart({
       pad: 4,
     },
     xaxis: {
-      title: "",
+      title: {
+        text: "Country",
+        font: {
+          size: 14,
+          color: isDarkTheme ? "white" : "black",
+        },
+        standoff: 20, // Additional space for tickangle -45
+      },
       tickangle: -45,
       color: isDarkTheme ? "white" : "black",
       gridcolor: isDarkTheme ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)",
     },
     yaxis: {
-      title: getMetricTitle(metric),
+      title: {
+        text: getMetricTitle(metric),
+        font: {
+          size: 14,
+          color: isDarkTheme ? "white" : "black",
+        },
+        standoff: 10,
+      },
       color: isDarkTheme ? "white" : "black",
       gridcolor: isDarkTheme ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)",
     },
@@ -173,14 +187,26 @@ export default function ComparisonChart({
       pad: 4,
     },
     xaxis: {
-      title: "GDP per Capita (USD)",
+      title: {
+        text: "GDP per Capita (USD)",
+        font: {
+          size: 14,
+          color: isDarkTheme ? "white" : "black",
+        },
+        standoff: 10,
+      },
       color: isDarkTheme ? "white" : "black",
       gridcolor: isDarkTheme ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)",
-      type: "log", // Use log scale for better visualization of wide-ranging GDP values
-      tickformat: ",.0f", // Format with commas for thousands
     },
     yaxis: {
-      title: getMetricTitle(metric),
+      title: {
+        text: getMetricTitle(metric),
+        font: {
+          size: 14,
+          color: isDarkTheme ? "white" : "black",
+        },
+        standoff: 10,
+      },
       color: isDarkTheme ? "white" : "black",
       gridcolor: isDarkTheme ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)",
     },

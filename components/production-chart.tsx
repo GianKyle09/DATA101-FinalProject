@@ -62,7 +62,14 @@ export default function ProductionChart() {
 
   // Update the layout to include theme-specific colors
   const layout = {
-    title: "",
+    title: {
+      text: `Energy Production Mix: ${country}`,
+      font: {
+        size: 16,
+        color: isDarkTheme ? "white" : "black",
+      },
+      y: 0.98,
+    },
     autosize: true,
     height: 350,
     paper_bgcolor: isDarkTheme ? "rgb(17, 17, 17)" : "white",

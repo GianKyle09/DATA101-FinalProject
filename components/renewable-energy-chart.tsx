@@ -104,13 +104,27 @@ export default function RenewableEnergyChart() {
         pad: 4,
       },
       xaxis: {
-        title: "Year",
+        title: {
+          text: "Year",
+          font: {
+            size: 14,
+            color: isDarkTheme ? "white" : "black",
+          },
+          standoff: 10,
+        },
         color: isDarkTheme ? "white" : "black",
         gridcolor: isDarkTheme ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)",
       },
       yaxis: {
-        title: "Renewable Energy Share (%)",
-        range: [0, 70], // Increased to accommodate Laos' high percentage
+        title: {
+          text: "Renewable Energy Share (%)",
+          font: {
+            size: 14,
+            color: isDarkTheme ? "white" : "black",
+          },
+          standoff: 10,
+        },
+        range: [0, 70],
         color: isDarkTheme ? "white" : "black",
         gridcolor: isDarkTheme ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)",
       },
@@ -141,14 +155,28 @@ export default function RenewableEnergyChart() {
         pad: 4,
       },
       xaxis: {
-        title: "",
+        title: {
+          text: "Country",
+          font: {
+            size: 14,
+            color: isDarkTheme ? "white" : "black",
+          },
+          standoff: 20, // More space for angled labels
+        },
         tickangle: -45,
         color: isDarkTheme ? "white" : "black",
         gridcolor: isDarkTheme ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)",
       },
       yaxis: {
-        title: "Renewable Energy Share (%)",
-        range: [0, 70], // Increased to accommodate Laos' high percentage
+        title: {
+          text: "Renewable Energy Share (%)",
+          font: {
+            size: 14,
+            color: isDarkTheme ? "white" : "black",
+          },
+          standoff: 10,
+        },
+        range: [0, 70],
         color: isDarkTheme ? "white" : "black",
         gridcolor: isDarkTheme ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)",
       },

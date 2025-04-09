@@ -58,6 +58,15 @@ export default function EnergyMap() {
 
   // Update the layout to include theme-specific colors
   const layout = {
+    title: {
+      text: `ASEAN ${mapMetric === "consumption" ? "Energy Consumption" : 
+             mapMetric === "production" ? "Energy Production" : "Renewable Share"}`,
+      font: {
+        size: 16,
+        color: isDarkTheme ? "white" : "black",
+      },
+      y: 0.97,
+    },
     geo: {
       scope: "asia",
       showframe: false,
