@@ -7,7 +7,6 @@
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.3-38b2ac)](https://tailwindcss.com/)
 [![Plotly.js](https://img.shields.io/badge/Plotly.js-2.24-3f4f75)](https://plotly.com/javascript/)
 
-![ASEAN PowerPulse Dashboard Preview](https://via.placeholder.com/800x400?text=ASEAN+PowerPulse+Dashboard)
 
 A comprehensive energy data visualization dashboard for ASEAN countries, created by DATA101 - S12 Group 6.
 
