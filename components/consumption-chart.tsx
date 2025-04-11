@@ -14,14 +14,50 @@ export default function ConsumptionChart() {
   const [country, setCountry] = useState("Philippines")
   const [plotData, setPlotData] = useState<any>(null)
   const [isClient, setIsClient] = useState(false)
+  const [dataType, setDataType] = useState("country") // 'country' or 'asean'
 
   const isDarkTheme = useThemeDetector()
 
   useEffect(() => {
     setIsClient(true)
 
+    let dataToUse = consumptionData
+
+    if (dataType === "asean") {
+      // Aggregate ASEAN data
+      const aseanYears = [...new Set(consumptionData.flatMap((c) => c.years))] // Get all unique years
+      const aseanValues = aseanYears.map((year) =>
+        consumptionData.reduce((sum, c) => {
+          const yearIndex = c.years.indexOf(year)
+          return yearIndex !== -1 ? sum + c.values[yearIndex] : sum
+        }, 0),
+      )
+      const aseanResidential = aseanYears.map((year) =>
+        consumptionData.reduce((sum, c) => {
+          const yearIndex = c.years.indexOf(year)
+          return yearIndex !== -1 ? sum + c.residential[yearIndex] : sum
+        }, 0),
+      )
+      const aseanIndustrial = aseanYears.map((year) =>
+        consumptionData.reduce((sum, c) => {
+          const yearIndex = c.years.indexOf(year)
+          return yearIndex !== -1 ? sum + c.industrial[yearIndex] : sum
+        }, 0),
+      )
+
+      dataToUse = [
+        {
+          country: "ASEAN",
+          years: aseanYears,
+          values: aseanValues,
+          residential: aseanResidential,
+          industrial: aseanIndustrial,
+        } as any,
+      ]
+    }
+
     // Filter data for selected country
-    const countryData = consumptionData.find((c) => c.country === country)
+    const countryData = dataToUse.find((c) => c.country === (dataType === "country" ? country : "ASEAN"))
 
     if (countryData) {
       const data = [
@@ -30,7 +66,7 @@ export default function ConsumptionChart() {
           y: countryData.values,
           type: "scatter",
           mode: "lines+markers",
-          marker: { color: "rgb(55, 83, 109)" },
+          marker: { color: "var(--primary)" },
           name: "Total Consumption",
         },
         {
@@ -38,7 +74,7 @@ export default function ConsumptionChart() {
           y: countryData.residential,
           type: "scatter",
           mode: "lines+markers",
-          marker: { color: "rgb(26, 118, 255)" },
+          marker: { color: "var(--secondary)" },
           name: "Residential",
         },
         {
@@ -46,14 +82,14 @@ export default function ConsumptionChart() {
           y: countryData.industrial,
           type: "scatter",
           mode: "lines+markers",
-          marker: { color: "rgb(214, 39, 40)" },
+          marker: { color: "var(--accent)" },
           name: "Industrial",
         },
       ]
 
       setPlotData(data)
     }
-  }, [country, isDarkTheme])
+  }, [country, isDarkTheme, dataType])
 
   const layout = {
     title: "",
@@ -64,31 +100,17 @@ export default function ConsumptionChart() {
     margin: {
       l: 50,
       r: 30,
-      b: 60, // Increased to accommodate axis title
+      b: 50,
       t: 10,
       pad: 4,
     },
     xaxis: {
-      title: {
-        text: "Year",
-        font: {
-          size: 14,
-          color: isDarkTheme ? "white" : "black",
-        },
-        standoff: 10, // Space between axis and title
-      },
+      title: "Year",
       color: isDarkTheme ? "white" : "black",
       gridcolor: isDarkTheme ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)",
     },
     yaxis: {
-      title: {
-        text: "Energy Consumption (TWh)",
-        font: {
-          size: 14,
-          color: isDarkTheme ? "white" : "black",
-        },
-        standoff: 10,
-      },
+      title: "Energy Consumption (TWh)",
       color: isDarkTheme ? "white" : "black",
       gridcolor: isDarkTheme ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)",
     },
@@ -116,19 +138,32 @@ export default function ConsumptionChart() {
           <CardTitle>Energy Consumption Trends</CardTitle>
           <CardDescription>Historical energy consumption by sector</CardDescription>
         </div>
-        <Select value={country} onValueChange={setCountry}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Select country" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="Philippines">Philippines</SelectItem>
-            <SelectItem value="Indonesia">Indonesia</SelectItem>
-            <SelectItem value="Malaysia">Malaysia</SelectItem>
-            <SelectItem value="Thailand">Thailand</SelectItem>
-            <SelectItem value="Vietnam">Vietnam</SelectItem>
-            <SelectItem value="Singapore">Singapore</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="flex items-center space-x-4">
+          <Select value={dataType} onValueChange={setDataType}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Select data type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="country">By Country</SelectItem>
+              <SelectItem value="asean">ASEAN-wide</SelectItem>
+            </SelectContent>
+          </Select>
+          {dataType === "country" && (
+            <Select value={country} onValueChange={setCountry}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Select country" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Philippines">Philippines</SelectItem>
+                <SelectItem value="Indonesia">Indonesia</SelectItem>
+                <SelectItem value="Malaysia">Malaysia</SelectItem>
+                <SelectItem value="Thailand">Thailand</SelectItem>
+                <SelectItem value="Vietnam">Vietnam</SelectItem>
+                <SelectItem value="Singapore">Singapore</SelectItem>
+              </SelectContent>
+            </Select>
+          )}
+        </div>
       </CardHeader>
       <CardContent>
         {isClient && plotData ? (

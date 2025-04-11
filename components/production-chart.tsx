@@ -5,7 +5,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import dynamic from "next/dynamic"
 import { productionData } from "@/data/production-data"
-// Add the theme detector import
 import { useThemeDetector } from "@/hooks/use-theme-detector"
 
 // Dynamically import Plotly to avoid SSR issues
@@ -15,6 +14,7 @@ export default function ProductionChart() {
   const [country, setCountry] = useState("Philippines")
   const [plotData, setPlotData] = useState<any>(null)
   const [isClient, setIsClient] = useState(false)
+  const [dataType, setDataType] = useState("country") // 'country' or 'asean'
 
   // Add the theme detector hook inside the component
   const isDarkTheme = useThemeDetector()
@@ -22,8 +22,27 @@ export default function ProductionChart() {
   useEffect(() => {
     setIsClient(true)
 
+    let dataToUse = productionData
+
+    if (dataType === "asean") {
+      // Aggregate ASEAN data
+      const aseanData = {
+        country: "ASEAN",
+        coal: productionData.reduce((sum, c) => sum + c.coal, 0),
+        oil: productionData.reduce((sum, c) => sum + c.oil, 0),
+        naturalGas: productionData.reduce((sum, c) => sum + c.naturalGas, 0),
+        hydro: productionData.reduce((sum, c) => sum + c.hydro, 0),
+        solar: productionData.reduce((sum, c) => sum + c.solar, 0),
+        wind: productionData.reduce((sum, c) => sum + c.wind, 0),
+        biofuels: productionData.reduce((sum, c) => sum + c.biofuels, 0),
+        other: productionData.reduce((sum, c) => sum + c.other, 0),
+      }
+
+      dataToUse = [aseanData as any]
+    }
+
     // Filter data for selected country
-    const countryData = productionData.find((c) => c.country === country)
+    const countryData = dataToUse.find((c) => c.country === (dataType === "country" ? country : "ASEAN"))
 
     if (countryData) {
       const data = [
@@ -58,18 +77,11 @@ export default function ProductionChart() {
 
       setPlotData(data)
     }
-  }, [country])
+  }, [country, isDarkTheme, dataType])
 
   // Update the layout to include theme-specific colors
   const layout = {
-    title: {
-      text: `Energy Production Mix: ${country}`,
-      font: {
-        size: 16,
-        color: isDarkTheme ? "white" : "black",
-      },
-      y: 0.98,
-    },
+    title: "",
     autosize: true,
     height: 350,
     paper_bgcolor: isDarkTheme ? "rgb(17, 17, 17)" : "white",
@@ -105,19 +117,32 @@ export default function ProductionChart() {
           <CardTitle>Energy Production Mix</CardTitle>
           <CardDescription>Breakdown of energy sources</CardDescription>
         </div>
-        <Select value={country} onValueChange={setCountry}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Select country" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="Philippines">Philippines</SelectItem>
-            <SelectItem value="Indonesia">Indonesia</SelectItem>
-            <SelectItem value="Malaysia">Malaysia</SelectItem>
-            <SelectItem value="Thailand">Thailand</SelectItem>
-            <SelectItem value="Vietnam">Vietnam</SelectItem>
-            <SelectItem value="Singapore">Singapore</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="flex items-center space-x-4">
+          <Select value={dataType} onValueChange={setDataType}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Select data type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="country">By Country</SelectItem>
+              <SelectItem value="asean">ASEAN-wide</SelectItem>
+            </SelectContent>
+          </Select>
+          {dataType === "country" && (
+            <Select value={country} onValueChange={setCountry}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Select country" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Philippines">Philippines</SelectItem>
+                <SelectItem value="Indonesia">Indonesia</SelectItem>
+                <SelectItem value="Malaysia">Malaysia</SelectItem>
+                <SelectItem value="Thailand">Thailand</SelectItem>
+                <SelectItem value="Vietnam">Vietnam</SelectItem>
+                <SelectItem value="Singapore">Singapore</SelectItem>
+              </SelectContent>
+            </Select>
+          )}
+        </div>
       </CardHeader>
       <CardContent>
         {isClient && plotData ? (

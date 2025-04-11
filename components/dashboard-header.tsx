@@ -4,7 +4,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { ModeToggle } from "@/components/mode-toggle"
 import { Button } from "@/components/ui/button"
-import { BarChart3, Globe, LineChart, Menu, X } from "lucide-react"
+import { BarChart3, LineChart, Map, Menu, X } from "lucide-react"
 import { useState } from "react"
 
 export default function DashboardHeader() {
@@ -13,8 +13,8 @@ export default function DashboardHeader() {
 
   const navigation = [
     { name: "Dashboard", href: "/", icon: BarChart3 },
-    { name: "Country Profiles", href: "/countries", icon: Globe },
     { name: "Comparison", href: "/comparison", icon: LineChart },
+    { name: "Philippines", href: "/philippines", icon: Map },
   ]
 
   return (
@@ -24,7 +24,7 @@ export default function DashboardHeader() {
           <div className="flex items-center">
             <Link href="/" className="flex items-center">
               <BarChart3 className="h-6 w-6 mr-2" />
-              <span className="font-bold text-lg">ASEAN PowerPulse by DATA101 - S12 Group 6</span>
+              <span className="font-bold text-lg">DATA101 - S12 Group 6</span>
             </Link>
           </div>
 
