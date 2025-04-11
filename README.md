@@ -39,7 +39,7 @@ A comprehensive energy data visualization dashboard for ASEAN countries, created
 
 1. Clone the repository:
    ```bash
-   git clone [https://github.com/your-username/asean-powerpulse.git](https://github.com/GianKyle09/DATA101-FinalProject.git)
+   git clone [https://github.com/GianKyle09/DATA101-FinalProject.git]
    cd asean-powerpulse
    ```
 
