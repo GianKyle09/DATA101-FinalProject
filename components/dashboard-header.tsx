@@ -17,11 +17,11 @@ export default function DashboardHeader() {
             <Link href="/" className="hover:text-primary transition-colors">
               Dashboard
             </Link>
-            <Link href="/philippines" className="hover:text-primary transition-colors">
-              Philippines
-            </Link>
             <Link href="/comparison" className="hover:text-primary transition-colors">
               Comparison
+            </Link>
+            <Link href="/philippines" className="hover:text-primary transition-colors">
+              Philippines
             </Link>
           </nav>
           <Button

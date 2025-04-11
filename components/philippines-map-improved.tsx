@@ -4,18 +4,20 @@ import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { FeatureCollection } from 'geojson';
 import { useTheme } from "next-themes";
+import { regionData } from '@/data/region-elecrate-year-code';
 
 const Plot = dynamic(() => import('react-plotly.js'), { ssr: false });
 
-interface PhilippinesMapProps {
-  data?: {
-    region: string;
-    value: number;
-    adm1_psgc: string;
-  }[];
+interface RegionData {
+  COUNTRY: string;
+  "ISLAND GROUP": string;
+  REGION: string;
+  "ELECTRIFICATION RATE": string;
+  YEAR: string;
+  adm1_psgc: string;
 }
 
-function PhilippinesMap({ data = [] }: PhilippinesMapProps) {
+function PhilippinesMap() {
   const [geoJson, setGeoJson] = useState<FeatureCollection | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { theme } = useTheme();
@@ -56,10 +58,14 @@ function PhilippinesMap({ data = [] }: PhilippinesMapProps) {
   if (isLoading) return <div>Loading map...</div>;
   if (!geoJson) return <div>Failed to load map data</div>;
 
+  // Prepare the data for the map
   const regions = geoJson.features.map(feature => feature.properties?.adm2_en);
   const values = geoJson.features.map(feature => {
-    const regionData = data.find(d => d.adm1_psgc === feature.properties?.adm1_psgc);
-    return regionData ? regionData.value : 0;
+    const regionMatch = regionData.find(d => 
+      d.adm1_psgc === feature.properties?.adm1_psgc ||
+      d.REGION.includes(feature.properties?.adm2_en)
+    );
+    return regionMatch ? parseFloat(regionMatch["ELECTRIFICATION RATE"]) * 100 : 0;
   });
 
   return (
@@ -79,7 +85,7 @@ function PhilippinesMap({ data = [] }: PhilippinesMapProps) {
             }
           },
           colorbar: {
-            title: 'Electrification Rate',
+            title: 'Electrification Rate (%)',
             thickness: 10,
             tickfont: {
               color: theme === 'dark' ? '#fff' : '#000'
