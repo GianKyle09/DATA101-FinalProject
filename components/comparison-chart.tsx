@@ -29,16 +29,27 @@ export default function ComparisonChart({
 
   useEffect(() => {
     console.log("Available comparisonData:", comparisonData); // Debug log
+    console.log("Selected metric:", metric); // Debug which metric was selected
     
     const dataSource = comparisonData?.length > 0 ? comparisonData : DEFAULT_DATA;
     console.log("Using data source:", dataSource); // Debug log
 
+    // Ensure we're correctly accessing the data
     const filteredData = dataSource
       .filter((item) => countries.includes(item.country))
-      .map((item) => ({
-        country: item.country,
-        value: item[metric as keyof typeof item] ?? 0 // Fallback to 0 if metric doesn't exist
-      }));
+      .map((item) => {
+        // Check if the metric exists in the item
+        if (!(metric in item)) {
+          console.warn(`Metric "${metric}" not found in data for ${item.country}`);
+          return { country: item.country, value: 0 };
+        }
+        
+        // Safely access the property using string key
+        return {
+          country: item.country,
+          value: (item as any)[metric] ?? 0 // Use type assertion to avoid TS errors
+        };
+      });
 
     console.log("Filtered data:", filteredData); // Debug log
 
@@ -47,6 +58,7 @@ export default function ComparisonChart({
       return;
     }
 
+    // Create the plot data
     setPlotData([{
       x: filteredData.map((item) => item.country),
       y: filteredData.map((item) => item.value),
@@ -59,13 +71,37 @@ export default function ComparisonChart({
         },
       },
     }]);
-  }, [countries, metric, isDarkTheme]);
+  }, [countries, metric, isDarkTheme, comparisonData]); // Added comparisonData as dependency
+
+  // Determine the appropriate title based on the metric
+  const getMetricTitle = () => {
+    switch (metric) {
+      case "renewable": return "Renewable Energy Share";
+      case "consumption": return "Energy Consumption";
+      case "production": return "Energy Production";
+      case "intensity": return "Energy Intensity";
+      case "emissions": return "CO2 Emissions";
+      default: return "Energy Analysis";
+    }
+  };
+
+  // Get the appropriate y-axis title
+  const getYAxisTitle = () => {
+    switch (metric) {
+      case "renewable": return "Renewable Share (%)";
+      case "consumption": return "Energy Consumption (TWh)";
+      case "production": return "Energy Production (TWh)";
+      case "intensity": return "Energy Intensity (kWh/$)";
+      case "emissions": return "CO2 Emissions (Mt)";
+      default: return "Value";
+    }
+  };
 
   if (!plotData) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Renewable Energy Analysis</CardTitle>
+          <CardTitle>{getMetricTitle()}</CardTitle>
           <CardDescription>Loading data...</CardDescription>
         </CardHeader>
         <CardContent className="h-[500px] flex items-center justify-center">
@@ -78,9 +114,9 @@ export default function ComparisonChart({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Renewable Energy Analysis</CardTitle>
+        <CardTitle>{getMetricTitle()}</CardTitle>
         <CardDescription>
-          Comparing {metric} share across selected countries
+          Comparing {metric.charAt(0).toUpperCase() + metric.slice(1)} across selected countries
         </CardDescription>
       </CardHeader>
       <CardContent className="pt-2">
@@ -98,11 +134,7 @@ export default function ComparisonChart({
               color: isDarkTheme ? "white" : "black",
             },
             yaxis: {
-              title: metric === "renewable" ? "Renewable Share (%)" : 
-                    metric === "consumption" ? "Energy Consumption (TWh)" :
-                    metric === "production" ? "Energy Production (TWh)" :
-                    metric === "intensity" ? "Energy Intensity (kWh/$)" :
-                    "CO2 Emissions (Mt)",
+              title: getYAxisTitle(),
               color: isDarkTheme ? "white" : "black",
             },
             font: {
