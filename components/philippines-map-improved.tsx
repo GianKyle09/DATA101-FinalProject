@@ -44,7 +44,7 @@ export default function PhilippinesMap() {
           ...prev,
           geoJsonLoaded: true,
           regionCount: data.features?.length || 0,
-          regionNames: data.features?.map(f => f.properties?.NAME) || []
+          regionNames: data.features?.map(f => f.properties?.REGION) || []
         }));
       } catch (error) {
         console.error("Failed to load Philippines map data:", error);
@@ -62,22 +62,21 @@ export default function PhilippinesMap() {
 
   useEffect(() => {
     if (geoJson && regionData) {
-      const regions = geoJson.features.map(feature => feature.properties?.NAME);
+      const regions = geoJson.features.map(feature => feature.properties?.REGION);
       
       const valueMatches = geoJson.features.map(feature => {
         const regionMatch = regionData.find(d => 
-          d.adm1_psgc === feature.properties?.ADM1_PCODE || 
-          (d.REGION && d.REGION.includes(feature.properties?.NAME))
+          d.REGION === feature.properties?.REGION
         );
         
         if (!regionMatch) {
           console.log("No match found for region:", feature.properties);
-          return { matched: false, region: feature.properties?.NAME, value: 0 };
+          return { matched: false, region: feature.properties?.REGION, value: 0 };
         }
         
         return { 
           matched: true, 
-          region: feature.properties?.NAME,
+          region: feature.properties?.REGION,
           value: regionMatch[selectedYear] || 0
         };
       });
@@ -124,11 +123,11 @@ export default function PhilippinesMap() {
     );
   }
 
-  const regions = geoJson.features.map(feature => feature.properties?.NAME);
+  // Fixed mapping using REGION instead of NAME
+  const regions = geoJson.features.map(feature => feature.properties?.REGION);
   const values = geoJson.features.map(feature => {
     const regionMatch = regionData.find(d => 
-      d.adm1_psgc === feature.properties?.ADM1_PCODE || 
-      (d.REGION && d.REGION.includes(feature.properties?.NAME))
+      d.REGION === feature.properties?.REGION
     );
     return regionMatch ? regionMatch[selectedYear] : 0;
   });
@@ -176,7 +175,7 @@ export default function PhilippinesMap() {
               geojson: geoJson,
               locations: regions,
               z: values,
-              featureidkey: 'properties.NAME',
+              featureidkey: 'properties.REGION',  // Changed from NAME to REGION
               colorscale: 'Viridis',
               marker: {
                 line: {
