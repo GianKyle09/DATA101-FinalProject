@@ -62,7 +62,7 @@ export default function ComparisonPage() {
         </Card>
       </main>
       <footer className="border-t py-4 text-center text-sm text-gray-500">
-        DATA101 - S12 Group 6 (Members: Apale, Masinda, Rayel, Sanchez) © {new Date().getFullYear()}
+        ASEAN Powerpulse by DATA101 - S12 Group 6 (Members: Apale, Masinda, Rayel, Sanchez) © {new Date().getFullYear()}
       </footer>
     </div>
   )
