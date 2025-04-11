@@ -33,7 +33,7 @@ A comprehensive energy data visualization dashboard for ASEAN countries, created
 
 ## 🚀 Demo
 
-[Live Demo](https://data101group6.vercel.app/) (Coming Soon)
+[Live Demo](https://data101group6.vercel.app/) 
 
 ## 💻 Installation
 
@@ -146,9 +146,9 @@ DATA101 - S12 Group 6:
 - Rayel
 - Sanchez
 
-## 📄 License
 
-This project is licensed under the MIT License.
+
+
 
 ---
 
