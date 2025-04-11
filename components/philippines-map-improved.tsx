@@ -8,18 +8,10 @@ import { regionData } from '@/data/region-elecrate-year-code';
 
 const Plot = dynamic(() => import('react-plotly.js'), { ssr: false });
 
-interface RegionData {
-  COUNTRY: string;
-  "ISLAND GROUP": string;
-  REGION: string;
-  "ELECTRIFICATION RATE": string;
-  YEAR: string;
-  adm1_psgc: string;
-}
-
 function PhilippinesMap() {
   const [geoJson, setGeoJson] = useState<FeatureCollection | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedYear, setSelectedYear] = useState<"2000" | "2010" | "2020">("2020");
   const { theme } = useTheme();
 
   useEffect(() => {
@@ -30,21 +22,7 @@ function PhilippinesMap() {
           'https://raw.githubusercontent.com/macoymejia/geojsonph/master/Regions/Regions.json'
         );
         const data = await response.json();
-        
-        // Transform the data to match our expected structure
-        const transformedData = {
-          ...data,
-          features: data.features.map((feature: any) => ({
-            ...feature,
-            properties: {
-              ...feature.properties,
-              adm1_psgc: feature.properties.ADM1_PCODE || feature.properties.REGION_ID,
-              adm2_en: feature.properties.NAME || feature.properties.REGION
-            }
-          }))
-        };
-        
-        setGeoJson(transformedData);
+        setGeoJson(data);
       } catch (error) {
         console.error("Failed to load Philippines map data:", error);
       } finally {
@@ -58,25 +36,40 @@ function PhilippinesMap() {
   if (isLoading) return <div>Loading map...</div>;
   if (!geoJson) return <div>Failed to load map data</div>;
 
-  // Prepare the data for the map
-  const regions = geoJson.features.map(feature => feature.properties?.adm2_en);
+  const regions = geoJson.features.map(feature => feature.properties?.NAME);
   const values = geoJson.features.map(feature => {
     const regionMatch = regionData.find(d => 
-      d.adm1_psgc === feature.properties?.adm1_psgc ||
-      d.REGION.includes(feature.properties?.adm2_en)
+      d.adm1_psgc === feature.properties?.ADM1_PCODE || 
+      d.REGION.includes(feature.properties?.NAME)
     );
-    return regionMatch ? parseFloat(regionMatch["ELECTRIFICATION RATE"]) * 100 : 0;
+    return regionMatch ? regionMatch[selectedYear] : 0;
   });
 
   return (
-    <Plot
-      data={[
-        {
+    <div className="space-y-4">
+      <div className="flex gap-4 justify-center">
+        {(["2000", "2010", "2020"] as const).map(year => (
+          <button
+            key={year}
+            onClick={() => setSelectedYear(year)}
+            className={`px-4 py-2 rounded-md ${
+              selectedYear === year
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600'
+            }`}
+          >
+            {year}
+          </button>
+        ))}
+      </div>
+      
+      <Plot
+        data={[{
           type: 'choropleth',
           geojson: geoJson,
           locations: regions,
           z: values,
-          featureidkey: 'properties.adm2_en',
+          featureidkey: 'properties.NAME',
           colorscale: 'Viridis',
           marker: {
             line: {
@@ -94,31 +87,29 @@ function PhilippinesMap() {
               color: theme === 'dark' ? '#fff' : '#000'
             }
           }
-        }
-      ]}
-      layout={{
-        title: 'Philippines Electrification Rate by Region',
-        font: {
-          color: theme === 'dark' ? '#fff' : '#000'
-        },
-        geo: {
-          fitbounds: 'locations',
-          projection: {
-            type: 'mercator'
+        }]}
+        layout={{
+          title: `Philippines Electrification Rate by Region (${selectedYear})`,
+          font: {
+            color: theme === 'dark' ? '#fff' : '#000'
           },
-          bgcolor: 'transparent',
-          showframe: false,
-          showcoastlines: false,
-          showland: false,
-          subunitcolor: theme === 'dark' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)'
-        },
-        margin: { t: 30, b: 0, l: 0, r: 0 },
-        paper_bgcolor: 'transparent',
-        plot_bgcolor: 'transparent'
-      }}
-      config={{ responsive: true }}
-      style={{ width: '100%', height: '600px' }}
-    />
+          geo: {
+            fitbounds: 'locations',
+            projection: { type: 'mercator' },
+            bgcolor: 'transparent',
+            showframe: false,
+            showcoastlines: false,
+            showland: false,
+            subunitcolor: theme === 'dark' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)'
+          },
+          margin: { t: 50, b: 0, l: 0, r: 0 },
+          paper_bgcolor: 'transparent',
+          plot_bgcolor: 'transparent'
+        }}
+        config={{ responsive: true }}
+        style={{ width: '100%', height: '600px' }}
+      />
+    </div>
   );
 }
 
