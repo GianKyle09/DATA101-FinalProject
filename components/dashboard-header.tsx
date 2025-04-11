@@ -11,7 +11,9 @@ export default function DashboardHeader() {
   return (
     <header className="border-b bg-white dark:bg-gray-800">
       <div className="container mx-auto flex justify-between items-center p-4">
-        <h1 className="text-xl font-bold">ASEAN PowerPulse</h1>
+        <Link href="/" className="text-xl font-bold hover:text-primary transition-colors">
+          ASEAN PowerPulse
+        </Link>
         <div className="flex items-center gap-4">
           <nav className="flex gap-4">
             <Link href="/" className="hover:text-primary transition-colors">

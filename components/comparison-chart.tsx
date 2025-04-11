@@ -1,58 +1,64 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import dynamic from "next/dynamic"
-import { comparisonData } from "@/data/comparison-data"
-import { useThemeDetector } from "@/hooks/use-theme-detector"
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import dynamic from "next/dynamic";
+import { comparisonData } from "@/data/comparison-data";
+import { useThemeDetector } from "@/hooks/use-theme-detector";
 
-// Dynamically import Plotly to avoid SSR issues
-const Plot = dynamic(() => import("react-plotly.js"), { ssr: false })
+const Plot = dynamic(() => import("react-plotly.js"), { ssr: false });
 
 interface ComparisonChartProps {
-  countries?: string[]
-  metric?: string
+  countries?: string[];
+  metric?: string;
 }
+
+// Default data in case comparisonData is empty
+const defaultData = [
+  { country: "Philippines", renewable: 25, consumption: 100, production: 80, intensity: 0.15, emissions: 150 },
+  { country: "Indonesia", renewable: 15, consumption: 200, production: 180, intensity: 0.25, emissions: 300 },
+  { country: "Malaysia", renewable: 20, consumption: 150, production: 120, intensity: 0.18, emissions: 200 },
+  { country: "Thailand", renewable: 18, consumption: 180, production: 150, intensity: 0.20, emissions: 250 },
+  { country: "Vietnam", renewable: 12, consumption: 160, production: 140, intensity: 0.22, emissions: 220 }
+];
 
 export default function ComparisonChart({
   countries = ["Philippines", "Indonesia", "Malaysia", "Thailand", "Vietnam"],
-  metric = "consumption",
+  metric = "renewable",
 }: ComparisonChartProps) {
-  const [plotData, setPlotData] = useState<any>(null)
-  const [isClient, setIsClient] = useState(false)
-  const isDarkTheme = useThemeDetector()
+  const [plotData, setPlotData] = useState<any>(null);
+  const [isClient, setIsClient] = useState(false);
+  const isDarkTheme = useThemeDetector();
 
   useEffect(() => {
-    setIsClient(true)
-
-    // Filter data for selected countries and metric
-    const filteredData = comparisonData
+    setIsClient(true);
+    
+    // Use comparisonData if available, otherwise fall back to defaultData
+    const dataSource = comparisonData?.length > 0 ? comparisonData : defaultData;
+    
+    const filteredData = dataSource
       .filter((item) => countries.includes(item.country))
       .map((item) => ({
         country: item.country,
         value: item[metric as keyof typeof item] as number,
-      }))
+      }));
 
-    // Bar chart
-    const data = [
-      {
-        x: filteredData.map((item) => item.country),
-        y: filteredData.map((item) => item.value),
-        type: "bar",
-        marker: {
-          color: "#4CAF50", // Use our primary color
-          line: {
-            color: "#388E3C", // Slightly darker shade
-            width: 1.5,
-          },
+    const data = [{
+      x: filteredData.map((item) => item.country),
+      y: filteredData.map((item) => item.value),
+      type: "bar",
+      marker: {
+        color: isDarkTheme ? "#4CAF50" : "#2E7D32",
+        line: {
+          color: isDarkTheme ? "#388E3C" : "#1B5E20",
+          width: 1.5,
         },
       },
-    ]
+    }];
 
-    setPlotData(data)
-  }, [countries, metric])
+    setPlotData(data);
+  }, [countries, metric, isDarkTheme]);
 
-  // Update the barLayout to include theme-specific colors
   const layout = {
     title: "",
     autosize: true,
@@ -80,39 +86,38 @@ export default function ComparisonChart({
     font: {
       color: isDarkTheme ? "white" : "black",
     },
-  }
-
-  const config = {
-    responsive: true,
-    displayModeBar: false,
-  }
+  };
 
   function getMetricTitle(metric: string) {
-    switch (metric) {
-      case "consumption":
-        return "Energy Consumption (TWh)"
-      case "production":
-        return "Energy Production (TWh)"
-      case "renewable":
-        return "Renewable Share (%)"
-      case "intensity":
-        return "Energy Intensity (kWh/$)"
-      case "emissions":
-        return "CO2 Emissions (Mt)"
-      default:
-        return ""
-    }
+    const titles: Record<string, string> = {
+      consumption: "Energy Consumption (TWh)",
+      production: "Energy Production (TWh)",
+      renewable: "Renewable Share (%)",
+      intensity: "Energy Intensity (kWh/$)",
+      emissions: "CO2 Emissions (Mt)",
+    };
+    return titles[metric] || "";
   }
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Country Comparison: {getMetricTitle(metric)}</CardTitle>
-        <CardDescription>Comparing {metric} across selected countries</CardDescription>
+        <CardTitle>Renewable Energy Analysis</CardTitle>
+        <CardDescription>
+          Comparing {getMetricTitle(metric).toLowerCase()} across selected countries
+        </CardDescription>
       </CardHeader>
       <CardContent className="pt-2">
         {isClient && plotData ? (
-          <Plot data={plotData} layout={layout} config={config} style={{ width: "100%", height: "100%" }} />
+          <Plot 
+            data={plotData} 
+            layout={layout} 
+            config={{
+              responsive: true,
+              displayModeBar: false,
+            }} 
+            style={{ width: "100%", height: "100%" }}
+          />
         ) : (
           <div className="flex items-center justify-center h-[500px]">
             <p>Loading chart...</p>
@@ -120,5 +125,5 @@ export default function ComparisonChart({
         )}
       </CardContent>
     </Card>
-  )
+  );
 }
