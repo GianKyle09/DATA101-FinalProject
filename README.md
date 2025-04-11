@@ -33,7 +33,7 @@ A comprehensive energy data visualization dashboard for ASEAN countries, created
 
 ## 🚀 Demo
 
-[Live Demo](https://asean-powerpulse.vercel.app) (Coming Soon)
+[Live Demo](https://data101group6.vercel.app/) (Coming Soon)
 
 ## 💻 Installation
 
