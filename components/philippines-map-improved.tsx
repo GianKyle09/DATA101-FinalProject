@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { FeatureCollection } from 'geojson';
+import { useTheme } from "next-themes";
 
 const Plot = dynamic(() => import('react-plotly.js'), { ssr: false });
 
@@ -17,25 +18,26 @@ interface PhilippinesMapProps {
 function PhilippinesMap({ data = [] }: PhilippinesMapProps) {
   const [geoJson, setGeoJson] = useState<FeatureCollection | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { theme } = useTheme();
 
   useEffect(() => {
     async function fetchGeoJSON() {
       try {
         setIsLoading(true);
         const response = await fetch(
-          'https://raw.githubusercontent.com/macoymejia/geojsonph/refs/heads/master/Regions/Regions.json'
+          'https://raw.githubusercontent.com/macoymejia/geojsonph/master/Regions/Regions.json'
         );
         const data = await response.json();
         
-        // Transform the data if needed to match our expected structure
+        // Transform the data to match our expected structure
         const transformedData = {
           ...data,
           features: data.features.map((feature: any) => ({
             ...feature,
             properties: {
               ...feature.properties,
-              adm1_psgc: feature.properties.ADM1_PCODE || feature.properties.PROVINCE_ID,
-              adm2_en: feature.properties.NAME || feature.properties.PROVINCE
+              adm1_psgc: feature.properties.ADM1_PCODE || feature.properties.REGION_ID,
+              adm2_en: feature.properties.NAME || feature.properties.REGION
             }
           }))
         };
@@ -72,18 +74,27 @@ function PhilippinesMap({ data = [] }: PhilippinesMapProps) {
           colorscale: 'Viridis',
           marker: {
             line: {
-              color: 'rgba(255,255,255,0.2)',
+              color: theme === 'dark' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)',
               width: 0.5
             }
           },
           colorbar: {
             title: 'Electrification Rate',
-            thickness: 10
+            thickness: 10,
+            tickfont: {
+              color: theme === 'dark' ? '#fff' : '#000'
+            },
+            titlefont: {
+              color: theme === 'dark' ? '#fff' : '#000'
+            }
           }
         }
       ]}
       layout={{
-        title: 'Philippines Electrification Rate by Province',
+        title: 'Philippines Electrification Rate by Region',
+        font: {
+          color: theme === 'dark' ? '#fff' : '#000'
+        },
         geo: {
           fitbounds: 'locations',
           projection: {
@@ -93,7 +104,7 @@ function PhilippinesMap({ data = [] }: PhilippinesMapProps) {
           showframe: false,
           showcoastlines: false,
           showland: false,
-          subunitcolor: 'rgba(255,255,255,0.2)'
+          subunitcolor: theme === 'dark' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)'
         },
         margin: { t: 30, b: 0, l: 0, r: 0 },
         paper_bgcolor: 'transparent',
