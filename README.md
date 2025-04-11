@@ -122,11 +122,10 @@ The dashboard is organized into three main sections:
 
 The dashboard uses real data from sources such as:
 
-- International Energy Agency (IEA)
-- ASEAN Centre for Energy (ACE)
-- Department of Energy Philippines
-- World Bank Energy Data
-- BP Statistical Review of World Energy
+- Our World in Data (OWID)
+- Philippine Power Statistic
+- GeoJson
+- macoymejia/geojsonph
 
 ## 🤝 Contributing
 
