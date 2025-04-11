@@ -1,4 +1,7 @@
-# ASEAN PowerPulse - Energy Dashboard
+![image](https://github.com/user-attachments/assets/ead06d63-cc97-436a-aba9-7147ba840105)# ASEAN PowerPulse - Energy Dashboard
+
+![image](https://github.com/user-attachments/assets/9c31c897-063c-435c-a827-92c5423d2041)
+
 
 [![Next.js](https://img.shields.io/badge/Next.js-13.0-black)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://www.typescriptlang.org/)
