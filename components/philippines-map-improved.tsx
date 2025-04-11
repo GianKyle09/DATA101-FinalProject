@@ -23,7 +23,7 @@ function PhilippinesMap({ data = [] }: PhilippinesMapProps) {
       try {
         setIsLoading(true);
         const response = await fetch(
-          'https://github.com/macoymejia/geojsonph/blob/master/Regions/Regions.json'
+          'https://raw.githubusercontent.com/macoymejia/geojsonph/refs/heads/master/Regions/Regions.json'
         );
         const data = await response.json();
         
