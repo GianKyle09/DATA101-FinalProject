@@ -15,7 +15,7 @@ export default function Home() {
     <div className="flex flex-col min-h-screen">
       <DashboardHeader />
       <main className="flex-1 container mx-auto px-4 py-6">
-        <h1 className="text-3xl font-bold mb-6">ASEAN PowerPulse by DATA101 - S12 Group 6 Energy Dashboard</h1>
+        <h1 className="text-3xl font-bold mb-6">ASEAN PowerPulse</h1>
 
         <div className="mb-6">
           <EnergyMap />
