@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { FeatureCollection } from 'geojson';
 
-// Dynamically import Plotly to avoid SSR issues
 const Plot = dynamic(() => import('react-plotly.js'), { ssr: false });
 
 interface PhilippinesMapProps {
@@ -23,10 +22,25 @@ function PhilippinesMap({ data = [] }: PhilippinesMapProps) {
     async function fetchGeoJSON() {
       try {
         setIsLoading(true);
-        // Load the Philippine regions GeoJSON from local file
-        const response = await fetch('/data/choropleth/philippines-regions.json');
+        const response = await fetch(
+          'https://raw.githubusercontent.com/macoymejia/geojsonph/master/Province/Provinces.json'
+        );
         const data = await response.json();
-        setGeoJson(data);
+        
+        // Transform the data if needed to match our expected structure
+        const transformedData = {
+          ...data,
+          features: data.features.map((feature: any) => ({
+            ...feature,
+            properties: {
+              ...feature.properties,
+              adm1_psgc: feature.properties.ADM1_PCODE || feature.properties.PROVINCE_ID,
+              adm2_en: feature.properties.NAME || feature.properties.PROVINCE
+            }
+          }))
+        };
+        
+        setGeoJson(transformedData);
       } catch (error) {
         console.error("Failed to load Philippines map data:", error);
       } finally {
@@ -40,7 +54,6 @@ function PhilippinesMap({ data = [] }: PhilippinesMapProps) {
   if (isLoading) return <div>Loading map...</div>;
   if (!geoJson) return <div>Failed to load map data</div>;
 
-  // Prepare the choropleth data
   const regions = geoJson.features.map(feature => feature.properties?.adm2_en);
   const values = geoJson.features.map(feature => {
     const regionData = data.find(d => d.adm1_psgc === feature.properties?.adm1_psgc);
@@ -70,7 +83,7 @@ function PhilippinesMap({ data = [] }: PhilippinesMapProps) {
         }
       ]}
       layout={{
-        title: 'Philippines Electrification Rate by Region',
+        title: 'Philippines Electrification Rate by Province',
         geo: {
           fitbounds: 'locations',
           projection: {
