@@ -14,14 +14,6 @@ export default function PhilippinesMap() {
   const [selectedYear, setSelectedYear] = useState<"2000" | "2010" | "2020">("2020");
   const { theme } = useTheme();
   const [isClient, setIsClient] = useState(false);
-  const [debugInfo, setDebugInfo] = useState({ 
-    geoJsonLoaded: false,
-    regionCount: 0,
-    regionNames: [],
-    matchedRegions: 0,
-    unmatchedRegions: [],
-    matchedValues: []
-  });
 
   useEffect(() => {
     setIsClient(true);
@@ -33,19 +25,7 @@ export default function PhilippinesMap() {
         );
         if (!response.ok) throw new Error('Failed to fetch GeoJSON');
         const data = await response.json();
-        
-        // Debug GeoJSON structure
-        console.log("GeoJSON loaded:", data);
-        console.log("Features count:", data.features?.length);
-        console.log("First feature properties:", data.features?.[0]?.properties);
-        
         setGeoJson(data);
-        setDebugInfo(prev => ({
-          ...prev,
-          geoJsonLoaded: true,
-          regionCount: data.features?.length || 0,
-          regionNames: data.features?.map(f => f.properties?.REGION) || []
-        }));
       } catch (error) {
         console.error("Failed to load Philippines map data:", error);
       } finally {
@@ -54,47 +34,7 @@ export default function PhilippinesMap() {
     }
 
     fetchGeoJSON();
-    
-    // Debug regionData
-    console.log("regionData imported:", regionData);
-    console.log("regionData structure:", regionData?.[0]);
   }, []);
-
-  useEffect(() => {
-    if (geoJson && regionData) {
-      const regions = geoJson.features.map(feature => feature.properties?.REGION);
-      
-      const valueMatches = geoJson.features.map(feature => {
-        const regionMatch = regionData.find(d => 
-          d.REGION === feature.properties?.REGION
-        );
-        
-        if (!regionMatch) {
-          console.log("No match found for region:", feature.properties);
-          return { matched: false, region: feature.properties?.REGION, value: 0 };
-        }
-        
-        return { 
-          matched: true, 
-          region: feature.properties?.REGION,
-          value: regionMatch[selectedYear] || 0
-        };
-      });
-      
-      const matchedRegions = valueMatches.filter(match => match.matched);
-      const unmatchedRegions = valueMatches.filter(match => !match.matched);
-      
-      console.log(`Matched ${matchedRegions.length} regions out of ${regions.length}`);
-      console.log("Unmatched regions:", unmatchedRegions.map(r => r.region));
-      
-      setDebugInfo(prev => ({
-        ...prev,
-        matchedRegions: matchedRegions.length,
-        unmatchedRegions: unmatchedRegions.map(r => r.region),
-        matchedValues: matchedRegions.map(m => ({ region: m.region, value: m.value }))
-      }));
-    }
-  }, [geoJson, regionData, selectedYear]);
 
   if (!isClient || isLoading) {
     return (
@@ -123,7 +63,7 @@ export default function PhilippinesMap() {
     );
   }
 
-  // Fixed mapping using REGION instead of NAME
+  // Map regions using the REGION property from GeoJSON
   const regions = geoJson.features.map(feature => feature.properties?.REGION);
   const values = geoJson.features.map(feature => {
     const regionMatch = regionData.find(d => 
@@ -152,21 +92,6 @@ export default function PhilippinesMap() {
         ))}
       </div>
       
-      {/* Debug information */}
-      <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded text-sm mb-4">
-        <h3 className="font-bold mb-2">Debug Info:</h3>
-        <ul className="space-y-1">
-          <li>GeoJSON loaded: {debugInfo.geoJsonLoaded ? 'Yes' : 'No'}</li>
-          <li>Region count: {debugInfo.regionCount}</li>
-          <li>Matched regions: {debugInfo.matchedRegions} / {debugInfo.regionCount}</li>
-          {debugInfo.unmatchedRegions.length > 0 && (
-            <li>
-              Unmatched regions: {debugInfo.unmatchedRegions.join(', ')}
-            </li>
-          )}
-        </ul>
-      </div>
-      
       <div className="w-full h-[600px]">
         {Plot && geoJson && (
           <Plot
@@ -175,7 +100,7 @@ export default function PhilippinesMap() {
               geojson: geoJson,
               locations: regions,
               z: values,
-              featureidkey: 'properties.REGION',  // Changed from NAME to REGION
+              featureidkey: 'properties.REGION',
               colorscale: 'Viridis',
               marker: {
                 line: {
